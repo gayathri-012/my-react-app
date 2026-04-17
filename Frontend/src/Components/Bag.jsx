@@ -15,7 +15,7 @@ function Bag() {
   useEffect(() => {
     const delay = setTimeout(() => {
       axios
-        .get(`http://localhost:3001/search?query=${search}`)
+        .get(`https://my-react-app-backend-4517.onrender.com/search?query=${search}`)
         .then((res) => {
 
           const filtered = res.data.filter(
@@ -74,7 +74,7 @@ function Bag() {
           products.map((item) => (
             <div key={item._id} className="product-card">
               <img
-                src={`http://localhost:3001/uploads/${item.imageUpload}`}
+                src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.imageUpload}`}
                 alt={item.title}
                 className="product-img"
               />
