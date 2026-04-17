@@ -23,7 +23,7 @@ function Checkout() {
   
   const fetchCart = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/cart/${user._id}`);
+      const res = await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${user._id}`);
       const data = await res.json();
       setCartData(data);
     } catch (err) {
@@ -95,7 +95,7 @@ function Checkout() {
             <div key={item._id} className="checkout-card">
 
               <img
-                src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
+                src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
                 alt=""
               />
 
