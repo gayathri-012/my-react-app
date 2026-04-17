@@ -24,7 +24,7 @@ function AddProduct() {
     formData.append("quantity", quantity);
     formData.append("rating", rating);
 
-    axios.post("http://localhost:3001/products", formData, {
+    axios.post("https://my-react-app-backend-4517.onrender.com/products", formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       }
