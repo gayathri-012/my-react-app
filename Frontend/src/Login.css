@@ -1,0 +1,100 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: #0b0b0b;
+}
+
+.page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 1100px;
+    height: 620px;
+    display: flex;
+    background: black;
+}
+
+.card-left {
+    width: 50%;
+    padding: 50px;
+    color: white;
+}
+
+.logo {
+    width: 80px;
+}
+
+.tagline {
+    color: red;
+    margin: 10px 0 30px;
+}
+
+.card-left h2 {
+    margin-bottom: 10px;
+}
+
+.register {
+    margin-bottom: 30px;
+}
+
+.register span {
+    color: red;
+    cursor: pointer;
+}
+
+.card-left input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    background: black;
+    border: 1px solid #888;
+    color: white;
+}
+
+.forgot {
+    text-align: right;
+    color: red;
+    margin-bottom: 25px;
+    cursor: pointer;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background: #e84545;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.card-right {
+    width: 50%;
+    position: relative;
+}
+
+.card-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: red;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+

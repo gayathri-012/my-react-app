@@ -1,0 +1,182 @@
+.home {
+  margin-top: 70px;  
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.hero {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.collection {
+  background: #f5f5f5;
+  padding: 80px 0;
+}
+
+.container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.collection-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.collection-label {
+  color: #e53935;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.collection-top h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000;
+}
+
+.view-btn {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 4px;
+}
+
+.view-btn:hover {
+  background: #c62828;
+}
+
+.carousel-item {
+  padding: 10px;
+}
+
+.product-carda {
+  background: #fff;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.product-carda img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.product-carda h3 {
+  padding: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.product-carda:hover {
+  transform: translateY(-6px);
+}
+
+
+
+
+
+.video-section {
+  position: relative;
+  width: 100%;
+  background:black;
+}
+
+.home-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sound-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(229, 57, 53, 0.9);
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+
+.brands {
+  background: #f5f5f5;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.bcontainer {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.brand-header {
+  margin-bottom: 50px;
+}
+
+.brand-label {
+  color: #ff4d4d;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.brand-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000;
+}
+
+.slider {
+  overflow: hidden;
+  width: 100%;
+}
+
+.slide-track {
+  display: flex;
+  gap: 80px;
+}
+
+.brand-logo {
+  width: 180px;
+  object-fit: contain;
+}
+.products{
+  background-color: white;
+  color:black;
+}

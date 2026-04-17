@@ -1,0 +1,111 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.page {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;   
+    align-items: center;       
+
+    background: #000;          
+}
+
+
+.register-card {
+  width: 90%;
+  max-width: 1100px;
+  display: flex;
+  background: black;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+
+.card-left {
+  width: 50%;
+  padding: 50px;
+  color: white;
+}
+
+.card-left h2 {
+  margin-bottom: 15px;
+}
+
+.sub-text {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.signin-link {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.signin-link a {
+  color:blue;
+  text-decoration: none;
+}
+
+.signin-link a:hover {
+  text-decoration: underline;
+}
+
+.card-left input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  background: #1a1a1a;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.card-left input:focus {
+  outline: none;
+  border-color: #e84545;
+}
+
+
+.register-btn {
+  width: 100%;
+  padding: 14px;
+  background: #e84545;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.register-btn:hover {
+  background: #c62828;
+}
+
+
+.card-right {
+  width: 50%;
+  position: relative;
+}
+
+.card-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  color: #e84545;
+  font-size: 22px;
+  cursor: pointer;
+}
