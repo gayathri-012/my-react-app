@@ -12,7 +12,7 @@ function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3001/orders/${user._id}`
+          `https://my-react-app-backend-4517.onrender.com/orders/${user._id}`
         );
 
         // ✅ LATEST ORDERS FIRST
@@ -50,7 +50,7 @@ function Orders() {
                 <img
                   src={
                     item.productId?.imageUpload
-                      ? `http://localhost:3001/uploads/${item.productId.imageUpload}`
+                      ? `https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`
                       : "/no-image.png"
                   }
                   alt="product"
