@@ -13,7 +13,7 @@ function Cap() {
   useEffect(() => {
     const delay = setTimeout(() => {
       axios
-        .get(`https://my-react-app-backend-4517.onrender.com/search?query=${search}`)
+        .get(`http://localhost:3001/search?query=${search}`)
         .then((res) => {
 
           const filtered = res.data.filter(
@@ -74,7 +74,7 @@ function Cap() {
           products.map((item) => (
             <div key={item._id} className="product-card">
               <img
-                src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.imageUpload}`}
+                src={`http://localhost:3001/uploads/${item.imageUpload}`}
                 alt={item.title}
                 className="product-img"
               />

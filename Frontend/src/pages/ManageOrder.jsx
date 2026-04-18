@@ -12,20 +12,20 @@ function ManageOrder() {
   }, []);
 
   const fetchOrders = () => {
-    axios.get("https://my-react-app-backend-4517.onrender.com/orders")
+    axios.get("http://localhost:3001/orders")
       .then(res => setOrders(res.data))
       .catch(err => console.log(err));
   };
 
   const updateStatus = (id, status) => {
-    axios.put(`https://my-react-app-backend-4517.onrender.com/orders/${id}`, { status })
+    axios.put(`http://localhost:3001/orders/${id}`, { status })
       .then(() => {
         fetchOrders();
       });
   };
 
   const deleteOrder = (id) => {
-    axios.delete(`https://my-react-app-backend-4517.onrender.com/orders/${id}`)
+    axios.delete(`http://localhost:3001/orders/${id}`)
       .then(() => {
         fetchOrders();
       });

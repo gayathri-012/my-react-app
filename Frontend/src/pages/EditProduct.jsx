@@ -20,7 +20,7 @@ function EditProduct() {
 
     useEffect(()=>{
 
-        axios.get(`https://my-react-app-backend-4517.onrender.com/products/${id}`)
+        axios.get(`http://localhost:3001/products/${id}`)
         .then(res=>{
             setProduct(res.data);
         })
@@ -45,7 +45,7 @@ function EditProduct() {
             formData.append("image",product.imageUpload);
         }
 
-        await axios.put(`https://my-react-app-backend-4517.onrender.com/products/${id}`,formData,{
+        await axios.put(`http://localhost:3001/products/${id}`,formData,{
             headers:{"Content-Type":"multipart/form-data"}
         });
 

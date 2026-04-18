@@ -20,7 +20,7 @@ function ProductDisplay() {
 
   useEffect(() => {
     axios
-      .get(`https://my-react-app-backend-4517.onrender.com/products/${id}`)
+      .get(`http://localhost:3001/products/${id}`)
       .then((res) => setProduct(res.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -46,7 +46,7 @@ function ProductDisplay() {
   }
 
   try {
-    await fetch("https://my-react-app-backend-4517.onrender.com/cart", {
+    await fetch("http://localhost:3001/cart", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ function ProductDisplay() {
 
         <div className="product-left">
           <img
-            src={`https://my-react-app-backend-4517.onrender.com/uploads/${product.imageUpload}`}
+            src={`http://localhost:3001/uploads/${product.imageUpload}`}
             alt={product.title}
           />
         </div>

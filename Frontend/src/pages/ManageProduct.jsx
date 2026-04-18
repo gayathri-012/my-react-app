@@ -14,7 +14,7 @@ function ManageProduct(){
         if(!window.confirm("Are you sure you want to delete this product?")) return;
 
         try {
-            await axios.delete(`https://my-react-app-backend-4517.onrender.com/products/${id}`);
+            await axios.delete(`http://localhost:3001/products/${id}`);
             alert("Product deleted successfully");
             setProducts(products.filter(product => product._id !== id));
         } 
@@ -24,7 +24,7 @@ function ManageProduct(){
     };
 
     useEffect(() => {
-        axios.get('https://my-react-app-backend-4517.onrender.com/products')
+        axios.get('http://localhost:3001/products')
             .then(response => {
                 setProducts(response.data);
             })
@@ -67,7 +67,7 @@ function ManageProduct(){
 
                         <tr key={product._id}>
 
-                            <td><img src={`https://my-react-app-backend-4517.onrender.com/uploads/${product.imageUpload}`}
+                            <td><img src={`http://localhost:3001/uploads/${product.imageUpload}`}
                             alt={product.title}
                             style={{width:"100px"}}/>
                             </td>
