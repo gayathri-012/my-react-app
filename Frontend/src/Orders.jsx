@@ -12,7 +12,7 @@ function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3001/orders/${user._id}`
+          `https://my-react-app-backend-4517.onrender.com/orders/${user._id}`
         );
 
         // ✅ LATEST ORDERS FIRST
@@ -43,14 +43,14 @@ function Orders() {
         orders.map((order) => (
           <div className="order-card" key={order._id}>
 
-            {/* 🔹 PRODUCTS */}
+            
             {order.items?.map((item, index) => (
               <div className="order-item" key={index}>
 
                 <img
                   src={
                     item.productId?.imageUpload
-                      ? `http://localhost:3001/uploads/${item.productId.imageUpload}`
+                      ? `https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`
                       : "/no-image.png"
                   }
                   alt="product"
@@ -59,7 +59,7 @@ function Orders() {
 
                 <div className="order-details">
 
-                  {/* ✅ USE DIV (IMPORTANT FIX) */}
+                 
                   <div className="product-title">
                     {item.productId?.title || "Product Not Available"}
                   </div>
@@ -74,7 +74,6 @@ function Orders() {
               </div>
             ))}
 
-            {/* 🔻 ORDER SUMMARY */}
             <div className="order-summary">
               <div><strong>Total:</strong> ₹{order.totalPrice}</div>
               <div><strong>Payment:</strong> {order.paymentMethod}</div>
