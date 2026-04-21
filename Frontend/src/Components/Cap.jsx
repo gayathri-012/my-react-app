@@ -74,12 +74,8 @@ function Cap() {
           products.map((item) => (
             <div key={item._id} className="product-card">
               <img
-<<<<<<< HEAD
                 //src={`http://localhost:3001/uploads/${item.imageUpload}`}
-                src={product.imageUpload}
-=======
-                src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.imageUpload}`}
->>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
+                src={item.imageUpload}
                 alt={item.title}
                 className="product-img"
               />
