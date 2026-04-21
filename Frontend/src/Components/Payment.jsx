@@ -47,7 +47,7 @@ function Payment() {
 
     if (paymentMethod === "COD") {
       try {
-        await axios.post("http://localhost:3001/orders", {
+        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
           userId: user._id,
           address: fullAddress,
           paymentMethod: "COD",
