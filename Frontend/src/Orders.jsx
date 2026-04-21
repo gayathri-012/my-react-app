@@ -7,6 +7,7 @@ function Orders() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
+<<<<<<< HEAD
     if (user) {
       axios
         .get(`http://localhost:3001/orders/${user._id}`)
@@ -19,6 +20,28 @@ function Orders() {
         })
         .catch((err) => console.log(err));
     }
+=======
+    if (!user) return;
+
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get(
+          `https://my-react-app-backend-4517.onrender.com/orders/${user._id}`
+        );
+
+        // ✅ LATEST ORDERS FIRST
+        const sortedOrders = res.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setOrders(sortedOrders);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+      }
+    };
+
+    fetchOrders();
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
   }, [user]);
 
   if (!user) {
@@ -30,6 +53,7 @@ function Orders() {
     <div className="orders-container">
 
 
+<<<<<<< HEAD
       <div style={{ marginBottom: "20px" }}>
     <p style={{ color: "gray" }}>
       Signed in as <strong>{user.email}</strong>
@@ -40,6 +64,21 @@ function Orders() {
   </div>
 
       <h2>My Orders</h2>
+=======
+            
+            {order.items?.map((item, index) => (
+              <div className="order-item" key={index}>
+
+                <img
+                  src={
+                    item.productId?.imageUpload
+                      ? `https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`
+                      : "/no-image.png"
+                  }
+                  alt="product"
+                  className="order-img"
+                />
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
 
       <div className="order-details">
         {orders.length === 0 ? (
@@ -48,6 +87,7 @@ function Orders() {
           orders.map((order, index) => (
             <div key={index} className="order-card">
 
+<<<<<<< HEAD
               <div className="order-row">
 
               
@@ -76,6 +116,11 @@ function Orders() {
                         {item.productId?.title} (x{item.quantity})
                       </p>
                     ))}
+=======
+                 
+                  <div className="product-title">
+                    {item.productId?.title || "Product Not Available"}
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
                   </div>
 
                   <p><strong>Total:</strong> ₹{order.totalPrice}</p>
@@ -92,6 +137,21 @@ function Orders() {
                 </div>
               </div>
 
+<<<<<<< HEAD
+=======
+            <div className="order-summary">
+              <div><strong>Total:</strong> ₹{order.totalPrice}</div>
+              <div><strong>Payment:</strong> {order.paymentMethod}</div>
+
+              <div>
+                <strong>Date:</strong>{" "}
+                {new Date(order.createdAt).toLocaleString()}
+              </div>
+
+              <div className={`status ${order.status}`}>
+                <strong>Status:</strong> {order.status}
+              </div>
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
             </div>
           ))
         )}

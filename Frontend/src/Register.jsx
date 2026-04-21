@@ -26,7 +26,7 @@ function Register() {
   return;
 }
 
-    axios.post("http://localhost:3001/register", {
+    axios.post("https://my-react-app-backend-4517.onrender.com/register", {
         firstname,
         lastname,
         email,

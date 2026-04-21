@@ -16,7 +16,7 @@ function ProductView() {
   useEffect(() => {
     const delay = setTimeout(() => {
       axios
-        .get(`http://localhost:3001/search?query=${search}`)
+        .get(`https://my-react-app-backend-4517.onrender.com/search?query=${search}`)
         .then((res) => setProducts(res.data))
         .catch((err) => console.log(err));
     }, 500);
@@ -63,8 +63,12 @@ function ProductView() {
               <div className="product-card" key={product._id}>
                 
                 <img
+<<<<<<< HEAD
                   // src={`http://localhost:3001/uploads/${product.imageUpload}`}
                   src={product.imageUpload}
+=======
+                  src={`https://my-react-app-backend-4517.onrender.com/uploads/${product.imageUpload}`}
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
                   alt={product.title}
                 />
 

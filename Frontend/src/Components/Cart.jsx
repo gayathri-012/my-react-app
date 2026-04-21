@@ -15,7 +15,7 @@ const fetchCart = async () => {
     const user = JSON.parse(localStorage.getItem("user")); 
 
     const res = await fetch(
-      `http://localhost:3001/cart/${user._id}`   
+      `https://my-react-app-backend-4517.onrender.com/cart/${user._id}`   
     );
 
     const data = await res.json();
@@ -26,7 +26,7 @@ const fetchCart = async () => {
 };
 
   const increaseQty = async (id, quantity) => {
-    await fetch(`http://localhost:3001/cart/${id}`, {
+    await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const fetchCart = async () => {
 
   const decreaseQty = async (id, quantity) => {
     if (quantity > 1) {
-      await fetch(`http://localhost:3001/cart/${id}`, {
+      await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +50,7 @@ const fetchCart = async () => {
   };
 
   const deleteProduct = async (id) => {
-    await fetch(`http://localhost:3001/cart/${id}`, {
+    await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
       method: "DELETE",
     });
     fetchCart();
@@ -81,8 +81,12 @@ const fetchCart = async () => {
                 {item.productId ? (
                   <>
                     <img
+<<<<<<< HEAD
                       //src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
                       src={item.productId.imageUpload}
+=======
+                      src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+>>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
                       alt={item.productId.title}
                       className="cart-img"
                     />
