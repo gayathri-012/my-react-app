@@ -68,7 +68,6 @@ function ManageProduct(){
                         <tr key={product._id}>
 
                             <td><img 
-                            //src={`http://localhost:3001/uploads/${product.imageUpload}`}
                             src={product.imageUpload}
                             alt={product.title}
                             style={{width:"100px"}}/>

@@ -1,80 +1,75 @@
 .orders-container {
   padding: 20px;
-  max-width: 1000px;
+  max-width: 900px;
   margin: auto;
   color: white;
-  margin-top: 100px;
+  margin-top: 80px;
 }
 
-
-.orders-container h2 {
+.orders-title {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
-
-
-.order-details {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 
 .order-card {
   background: #1c1c1c;
   border-radius: 12px;
   padding: 20px;
+  margin-bottom: 20px;
 }
 
 
-.order-row {
+.order-item {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
 }
 
 
-.order-images {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.order-image {
-  width: 100px;
-  height: 100px;
+.order-img {
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 10px;
   background: #2a2a2a;
 }
 
 
-.order-info {
+.order-details {
   flex: 1;
 }
 
 
-.product-names {
-  margin-bottom: 10px;
+.product-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
-.product-names p {
-  margin: 4px 0;
-  font-size: 15px;
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.order-info p {
-  margin: 6px 0;
+.order-details div {
   font-size: 14px;
   color: #ccc;
+  margin: 4px 0;
+}
+
+
+.order-summary {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.order-summary div {
+  margin: 5px 0;
+  font-size: 14px;
 }
 
 
 .status {
-  margin-top: 5px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .status.Pending {
@@ -93,4 +88,5 @@
 .no-orders {
   text-align: center;
   font-size: 16px;
+  margin-top: 20px;
 }

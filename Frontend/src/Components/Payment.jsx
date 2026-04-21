@@ -47,11 +47,7 @@ function Payment() {
 
     if (paymentMethod === "COD") {
       try {
-<<<<<<< HEAD
         await axios.post("http://localhost:3001/orders", {
-=======
-        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
->>>>>>> a77120413c14f522a7edd5dd7fb787a4373b1c97
           userId: user._id,
           address: fullAddress,
           paymentMethod: "COD",
@@ -164,7 +160,7 @@ function Payment() {
           {cartData?.map((item) => (
             <div key={item._id} className="item">
               <img
-                src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+                src={item.productId.imageUpload}
                 alt=""
               />
               <div>
