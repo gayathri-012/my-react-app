@@ -74,7 +74,8 @@ function Bag() {
           products.map((item) => (
             <div key={item._id} className="product-card">
               <img
-                src={`http://localhost:3001/uploads/${item.imageUpload}`}
+                //src={`http://localhost:3001/uploads/${item.imageUpload}`}
+                src={product.imageUpload}
                 alt={item.title}
                 className="product-img"
               />

@@ -71,7 +71,8 @@ function ProductDisplay() {
 
         <div className="product-left">
           <img
-            src={`http://localhost:3001/uploads/${product.imageUpload}`}
+            // src={`http://localhost:3001/uploads/${product.imageUpload}`}
+            src={product.imageUpload}
             alt={product.title}
           />
         </div>

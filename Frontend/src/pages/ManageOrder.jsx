@@ -38,7 +38,7 @@ function ManageOrder() {
       <button className="back-button" onClick={() => navigate("/dashboard")}>
         Back
       </button>
-    
+
       <table className="table">
         <thead>
           <tr>
@@ -59,8 +59,20 @@ function ManageOrder() {
             <tr key={order._id}>
               <td>{order._id}</td>
               <td>{order.userName || "No Name"}</td>
-              <td>{order.productId?.title}</td>
-              <td>{order.quantity}</td>
+              <td>
+                {order.items?.map((item, i) => (
+                  <div key={i}>
+                    {item.productId?.title || "No Product"}
+                  </div>
+                ))}
+              </td>
+              <td>
+                {order.items?.map((item, i) => (
+                  <div key={i}>
+                    {item.quantity}
+                  </div>
+                ))}
+              </td>
               <td>₹{order.totalPrice}</td>
               <td>{order.address}</td>
               <td>{order.paymentMethod}</td>

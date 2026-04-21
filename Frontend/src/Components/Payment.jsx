@@ -47,7 +47,7 @@ function Payment() {
 
     if (paymentMethod === "COD") {
       try {
-        await axios.post("https://localhost:3001/orders", {
+        await axios.post("http://localhost:3001/orders", {
           userId: user._id,
           address: fullAddress,
           paymentMethod: "COD",
@@ -84,7 +84,7 @@ function Payment() {
       const order = response.data;
 
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: "INR",
         name: "My Store",

@@ -7,26 +7,18 @@ function Orders() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3001/orders/${user._id}`
-        );
-
-        // ✅ LATEST ORDERS FIRST
-        const sortedOrders = res.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        setOrders(sortedOrders);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-      }
-    };
-
-    fetchOrders();
+    if (user) {
+      axios
+        .get(`http://localhost:3001/orders/${user._id}`)
+        .then((res) => {
+         
+          const sorted = res.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setOrders(sorted);
+        })
+        .catch((err) => console.log(err));
+    }
   }, [user]);
 
   if (!user) {
@@ -34,64 +26,76 @@ function Orders() {
   }
 
   return (
+
     <div className="orders-container">
-      <h2 className="orders-title">My Orders</h2>
 
-      {orders.length === 0 ? (
-        <p className="no-orders">No orders found</p>
-      ) : (
-        orders.map((order) => (
-          <div className="order-card" key={order._id}>
 
-            {/* 🔹 PRODUCTS */}
-            {order.items?.map((item, index) => (
-              <div className="order-item" key={index}>
+      <div style={{ marginBottom: "20px" }}>
+    <p style={{ color: "gray" }}>
+      Signed in as <strong>{user.email}</strong>
+    </p>
+    <p>
+      <strong>Name:</strong> {user.firstname}
+    </p>
+  </div>
 
-                <img
-                  src={
-                    item.productId?.imageUpload
-                      ? `http://localhost:3001/uploads/${item.productId.imageUpload}`
-                      : "/no-image.png"
-                  }
-                  alt="product"
-                  className="order-img"
-                />
+      <h2>My Orders</h2>
 
-                <div className="order-details">
+      <div className="order-details">
+        {orders.length === 0 ? (
+          <p className="no-orders">No orders found</p>
+        ) : (
+          orders.map((order, index) => (
+            <div key={index} className="order-card">
 
-                  {/* ✅ USE DIV (IMPORTANT FIX) */}
-                  <div className="product-title">
-                    {item.productId?.title || "Product Not Available"}
+              <div className="order-row">
+
+              
+                <div className="order-images">
+                  {order.items?.map((item, i) => (
+                    <img
+                      key={i}
+                      src={
+                        item.productId?.imageUpload
+                          ? `http://localhost:3001/uploads/${item.productId.imageUpload}`
+                          : "/no-image.png"
+                      }
+                      alt="product"
+                      className="order-image"
+                    />
+                  ))}
+                </div>
+
+                
+                <div className="order-info">
+
+                  
+                  <div className="product-names">
+                    {order.items?.map((item, i) => (
+                      <p key={i}>
+                        {item.productId?.title} (x{item.quantity})
+                      </p>
+                    ))}
                   </div>
 
-                  <div>Quantity: {item.quantity}</div>
+                  <p><strong>Total:</strong> ₹{order.totalPrice}</p>
+                  <p><strong>Payment:</strong> {order.paymentMethod}</p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(order.createdAt).toLocaleString()}
+                  </p>
 
-                  <div>
-                    Price: ₹{item.productId?.price * item.quantity}
-                  </div>
+                  <p className={`status ${order.status}`}>
+                    <strong>Status:</strong> {order.status}
+                  </p>
 
                 </div>
               </div>
-            ))}
 
-            {/* 🔻 ORDER SUMMARY */}
-            <div className="order-summary">
-              <div><strong>Total:</strong> ₹{order.totalPrice}</div>
-              <div><strong>Payment:</strong> {order.paymentMethod}</div>
-
-              <div>
-                <strong>Date:</strong>{" "}
-                {new Date(order.createdAt).toLocaleString()}
-              </div>
-
-              <div className={`status ${order.status}`}>
-                <strong>Status:</strong> {order.status}
-              </div>
             </div>
-
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }

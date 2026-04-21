@@ -12,26 +12,46 @@ require("./models/Products");
 require("dotenv").config();
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/");
+//   },
 
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   }
+// });
+
+// const upload = multer({ storage: storage });
+
+const { v2: cloudinary } = require("cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+// Cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+// Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "products",
+  },
+});
+
+const upload = multer({ storage });
 
 
 const app = express()
 app.use(express.json())
-app.use("/uploads", express.static("uploads"));
+// app.use("/uploads", express.static("uploads"));
 
 
 app.use(cors())
-mongose.connect(process.env.MONGO_URI); 
+mongose.connect(process.env.MONGO_URI);
 
 
 
@@ -78,7 +98,7 @@ app.post('/products', upload.single("image"), (req, res) => {
     price: req.body.price,
     quantity: req.body.quantity,
     rating: req.body.rating,
-    imageUpload: req.file.filename,
+    imageUpload: req.file.path,
     category: req.body.category
   };
 
@@ -109,14 +129,14 @@ app.delete("/products/:id", async (req, res) => {
     }
 
 
-    const imagePath = path.join(__dirname, "uploads", product.imageUpload);
+    // const imagePath = path.join(__dirname, "uploads", product.imageUpload);
 
 
-    fs.unlink(imagePath, (err) => {
-      if (err) {
-        console.log("Image not found or already deleted");
-      }
-    });
+    // fs.unlink(imagePath, (err) => {
+    //   if (err) {
+    //     console.log("Image not found or already deleted");
+    //   }
+    // });
 
 
     await ProductModel.findByIdAndDelete(req.params.id);
@@ -156,7 +176,7 @@ app.put('/products/:id', upload.single("image"), async (req, res) => {
       quantity
     };
     if (req.file) {
-      updateData.imageUpload = req.file.filename;
+      updateData.imageUpload = req.file.path;
     }
     const updated = await ProductModel.findByIdAndUpdate(
       req.params.id,
@@ -271,7 +291,7 @@ app.post("/orders", async (req, res) => {
     let total = 0;
     const items = [];
 
-    
+
     for (let item of req.body.items) {
       const product = await ProductModel.findById(item.productId);
 
@@ -286,7 +306,7 @@ app.post("/orders", async (req, res) => {
       total += product.price * item.quantity;
     }
 
-   
+
     const order = await OrderModel.create({
       userId: req.body.userId,
       userName: user.name || user.firstname,
@@ -299,10 +319,10 @@ app.post("/orders", async (req, res) => {
       totalPrice: total
     });
 
-  
+
     await CartModel.deleteMany({ userId: req.body.userId });
 
-    
+
     transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
@@ -313,11 +333,12 @@ app.post("/orders", async (req, res) => {
         <p>Your order has been placed successfully.</p>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Total:</strong> ₹${order.totalPrice}</p>
+        <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
         <p>Thank you for shopping with us!</p>
       `
     });
 
-    
+
     res.json(order);
 
   } catch (err) {
@@ -351,7 +372,7 @@ app.put("/orders/:id", async (req, res) => {
     const updated = await OrderModel.findByIdAndUpdate(
       req.params.id,
       { status: req.body.status },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updated) {
@@ -494,7 +515,7 @@ app.post("/verify-payment", async (req, res) => {
       address
     } = req.body;
 
-    const secret = process.env.RAZORPAY_KEY_SECRET; 
+    const secret = process.env.RAZORPAY_KEY_SECRET;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -503,10 +524,9 @@ app.post("/verify-payment", async (req, res) => {
       .update(body.toString())
       .digest("hex");
 
-    // ✅ VERIFY SIGNATURE
+
     if (expectedSignature === razorpay_signature) {
 
-      // ✅ CREATE SINGLE ORDER
       const newOrder = await OrderModel.create({
         userId,
         userName,
@@ -527,7 +547,29 @@ app.post("/verify-payment", async (req, res) => {
         )
       });
 
-      // ✅ REMOVE ITEMS FROM CART
+     
+      const user = await UserModel.findById(userId);
+
+      
+      if (user && user.email) {
+        transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: user.email,
+          subject: "From HRX- Payment Successful & Order Confirmed",
+          html: `
+        <h2>Payment Successful & Order Confirmed</h2>
+        <p>Hello ${user.name || userName},</p>
+        <p>Your payment was successful and your order has been placed.</p>
+        <p><strong>Order ID:</strong> ${newOrder._id}</p>
+        <p><strong>Total:</strong> ₹${newOrder.totalPrice}</p>
+        <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
+        <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
+        <p>Thank you for shopping with us!</p>
+      `
+        });
+      }
+
+    
       for (let item of cartData) {
         const cartItem = await CartModel.findOne({
           userId,

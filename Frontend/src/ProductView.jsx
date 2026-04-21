@@ -63,7 +63,8 @@ function ProductView() {
               <div className="product-card" key={product._id}>
                 
                 <img
-                  src={`http://localhost:3001/uploads/${product.imageUpload}`}
+                  // src={`http://localhost:3001/uploads/${product.imageUpload}`}
+                  src={product.imageUpload}
                   alt={product.title}
                 />
 

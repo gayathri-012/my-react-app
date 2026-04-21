@@ -28,7 +28,6 @@ import Dashboard from "./pages/Dashboard";
 import ManageProduct from "./pages/ManageProduct";
 import EditProduct from "./pages/EditProduct";
 import ManageOrder from "./pages/ManageOrder";
-import Profile from "./Profile";
 import Orders from "./Orders";
 
 
@@ -52,7 +51,6 @@ function App() {
           <Route path="/bag" element={<Bag />} />
           <Route path="/bluetooth" element={<Bluetooth />} />
           <Route path="/connect" element={<Connect />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/orders" element={<Orders />} />
           
         </Route>

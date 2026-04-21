@@ -1,88 +1,96 @@
 .orders-container {
   padding: 20px;
-  background-color: #0f0f0f;
-  min-height: 100vh;
+  max-width: 1000px;
+  margin: auto;
   color: white;
+  margin-top: 100px;
 }
 
-/* Title */
-.orders-title {
+
+.orders-container h2 {
   text-align: center;
   margin-bottom: 20px;
 }
 
-/* No orders */
-.no-orders {
-  text-align: center;
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Card */
+
 .order-card {
   background: #1c1c1c;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  border-radius: 12px;
+  padding: 20px;
 }
 
-/* Item */
-.order-item {
+
+.order-row {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid #333;
 }
 
-/* Image */
-.order-img {
-  width: 80px;
-  height: 80px;
+
+.order-images {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-image {
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
+  background: #2a2a2a;
 }
 
-/* Details */
-.order-details {
+
+.order-info {
   flex: 1;
 }
 
-/* ✅ FIX: prevents overlapping */
-.product-title {
-  font-size: 16px;
-  margin-bottom: 5px;
-  line-height: 1.4;
 
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: break-word;
+.product-names {
+  margin-bottom: 10px;
 }
 
-/* Summary */
-.order-summary {
-  margin-top: 10px;
+.product-names p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 500;
 }
 
-.order-summary p {
-  margin: 5px 0;
+.order-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #ccc;
 }
 
-/* Status */
+
 .status {
-  font-weight: bold;
+  margin-top: 5px;
+  font-weight: 500;
 }
 
 .status.Pending {
   color: orange;
 }
 
-.status.Shipped {
-  color: blue;
-}
-
-.status.Delivered {
-  color: green;
+.status.Completed {
+  color: lightgreen;
 }
 
 .status.Cancelled {
   color: red;
+}
+
+
+.no-orders {
+  text-align: center;
+  font-size: 16px;
 }

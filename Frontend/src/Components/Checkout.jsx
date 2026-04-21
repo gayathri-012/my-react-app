@@ -95,8 +95,9 @@ function Checkout() {
             <div key={item._id} className="checkout-card">
 
               <img
-                src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
-                alt=""
+                //src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
+                src={item.productId.imageUpload}
+                alt={item.productId.title}
               />
 
               <div className="info">

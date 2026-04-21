@@ -81,7 +81,8 @@ const fetchCart = async () => {
                 {item.productId ? (
                   <>
                     <img
-                      src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
+                      //src={`http://localhost:3001/uploads/${item.productId.imageUpload}`}
+                      src={item.productId.imageUpload}
                       alt={item.productId.title}
                       className="cart-img"
                     />
