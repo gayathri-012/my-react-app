@@ -12,7 +12,7 @@ function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3001/orders/${user._id}`
+          `https://my-react-app-backend-4517.onrender.com/orders/${user._id}`
         );
 
 
