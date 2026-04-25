@@ -99,7 +99,8 @@ app.post('/products', upload.single("image"), (req, res) => {
     quantity: req.body.quantity,
     rating: req.body.rating,
     imageUpload: req.file.path,
-    category: req.body.category
+    category: req.body.category,
+    gst: Number(req.body.gst)
   };
 
   ProductModel.create(productDetail)
