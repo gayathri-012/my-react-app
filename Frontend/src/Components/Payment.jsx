@@ -217,7 +217,6 @@
 // export default Payment;
 
 
-
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -228,24 +227,25 @@ function Payment() {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const formData = location.state?.form;
-  const cartData = location.state?.cartData;
+
+  // ✅ GET CART FROM LOCALSTORAGE (MAIN FIX)
+  const localCart =
+    JSON.parse(localStorage.getItem(`cart_${user?._id}`)) || [];
+
+  // ✅ SUPPORT BOTH FLOW (checkout OR direct open)
+  const formData = location.state?.form || {};
+  const cartData = location.state?.cartData || localCart;
 
   const [paymentMethod, setPaymentMethod] = useState("");
-
-  // ❌ STOP if no data
-  if (!cartData || cartData.length === 0) {
-    return <h2 style={{ color: "white" }}>No items found</h2>;
-  }
 
   // ✅ GST CALCULATION
   let subtotal = 0;
   let totalGST = 0;
 
   const itemsWithGST = cartData.map((item) => {
-    const price = item.productId.price;
-    const qty = item.quantity;
-    const gst = item.productId.gst || 0;
+    const price = item.productId?.price || 0;
+    const qty = item.quantity || 0;
+    const gst = item.productId?.gst || 0;
 
     const base = price * qty;
     const gstAmount = (base * gst) / 100;
@@ -287,26 +287,29 @@ function Payment() {
       return;
     }
 
-    const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
+    const fullAddress = `${formData?.address || ""}, ${formData?.city || ""}, ${formData?.state || ""} - ${formData?.pincode || ""}`;
 
     // ✅ COD
     if (paymentMethod === "COD") {
       try {
-        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
-          userId: user._id,
-          address: fullAddress,
-          paymentMethod: "COD",
-          items: itemsWithGST,
-          subtotal,
-          totalGST,
-          totalAmount,
-        });
+        await axios.post(
+          "https://my-react-app-backend-4517.onrender.com/orders",
+          {
+            userId: user._id,
+            address: fullAddress,
+            paymentMethod: "COD",
+            items: itemsWithGST,
+            subtotal,
+            totalGST,
+            totalAmount,
+          }
+        );
 
         alert("Order placed (COD)");
 
         localStorage.removeItem(`cart_${user._id}`);
-        navigate("/productview");
 
+        navigate("/productview");
       } catch (err) {
         console.log(err);
       }
@@ -315,6 +318,7 @@ function Payment() {
 
     // ✅ ONLINE PAYMENT
     const res = await loadRazorpay();
+
     if (!res) {
       alert("Razorpay failed to load");
       return;
@@ -323,7 +327,7 @@ function Payment() {
     try {
       const response = await axios.post(
         "https://my-react-app-backend-4517.onrender.com/create-order",
-        { amount: totalAmount }   // ✅ GST INCLUDED
+        { amount: totalAmount } // ✅ correct amount
       );
 
       const order = response.data;
@@ -351,11 +355,12 @@ function Payment() {
           alert("Payment successful");
 
           localStorage.removeItem(`cart_${user._id}`);
+
           navigate("/productview");
         },
 
         prefill: {
-          name: user?.name,
+          name: formData?.name || user?.name,
           email: user?.email,
           contact: formData?.phone,
         },
@@ -364,7 +369,6 @@ function Payment() {
       };
 
       new window.Razorpay(options).open();
-
     } catch (err) {
       console.log(err);
       alert("Payment failed");
@@ -377,40 +381,46 @@ function Payment() {
 
       <div className="payment-box">
 
+        {/* LEFT SIDE */}
         <div className="left">
           <h3>Order Summary</h3>
 
-          {cartData.map((item) => {
-            const base = item.productId.price * item.quantity;
-            const gstAmount =
-              (base * (item.productId.gst || 0)) / 100;
+          {cartData.length === 0 ? (
+            <p>No items found</p>
+          ) : (
+            cartData.map((item) => {
+              const base = item.productId.price * item.quantity;
+              const gstAmount =
+                (base * (item.productId.gst || 0)) / 100;
 
-            return (
-              <div key={item._id} className="item">
-                <img
-                  src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
-                  alt=""
-                />
-                <div>
-                  <p>{item.productId.title}</p>
-                  <p>Qty: {item.quantity}</p>
-                  <p>GST: ₹{gstAmount.toFixed(2)}</p>
+              return (
+                <div key={item._id} className="item">
+                  <img
+                    src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+                    alt=""
+                  />
+                  <div>
+                    <p>{item.productId.title}</p>
+                    <p>Qty: {item.quantity}</p>
+                    <p>GST: ₹{gstAmount.toFixed(2)}</p>
+                  </div>
+                  <span>₹{(base + gstAmount).toFixed(2)}</span>
                 </div>
-                <span>₹{(base + gstAmount).toFixed(2)}</span>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
 
           <h3>Subtotal: ₹{subtotal.toFixed(2)}</h3>
           <h3>GST: ₹{totalGST.toFixed(2)}</h3>
           <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
         </div>
 
+        {/* RIGHT SIDE */}
         <div className="right">
           <h3>Delivery Details</h3>
 
           <div className="address">
-            <strong>{formData?.name}</strong>
+            <strong>{formData?.name || user?.name}</strong>
             <p>
               {formData?.address}, {formData?.city}, {formData?.state}
             </p>
