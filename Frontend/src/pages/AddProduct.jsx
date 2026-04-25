@@ -146,7 +146,7 @@ function AddProduct() {
     formData.append("rating", rating);
     formData.append("gst", gst);
 
-    axios.post("http://localhost:3001/products", formData)
+    axios.post("https://my-react-app-backend-4517.onrender.com/products", formData)
       .then((res) => {
         alert("Product Added Successfully");
 
