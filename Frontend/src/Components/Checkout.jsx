@@ -171,7 +171,7 @@
 
 import React, { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import "../css/Checkout.css";
+import "./Checkout.css";
 
 function Checkout() {
   const { id } = useParams();
