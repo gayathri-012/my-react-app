@@ -178,8 +178,10 @@ function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const cartItems = location.state?.cartItems;
-  const product = location.state?.product;
+ const savedData = JSON.parse(localStorage.getItem("checkoutData"));
+
+const cartItems = location.state?.cartItems || savedData?.cartItems;
+const product = location.state?.product || savedData?.product;
 
   const [form, setForm] = useState({
     name: "",
@@ -194,6 +196,10 @@ function Checkout() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  if (!cartItems && !product) {
+  return <h2 style={{ color: "white" }}>No items found</h2>;
+}
 
   // ✅ GST CALCULATION (COMMON)
   let subtotal = 0;

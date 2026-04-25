@@ -107,6 +107,18 @@ function ProductDisplay() {
       return;
     }
 
+
+    localStorage.setItem(
+    "checkoutData",
+    JSON.stringify({
+      product: {
+        ...product,
+        quantity: count
+      }
+    })
+  );
+  
+
     navigate("/checkout", {
       state: {
         singleProduct: product,
