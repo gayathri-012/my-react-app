@@ -217,7 +217,6 @@
 // export default Payment;
 
 
-
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -229,15 +228,23 @@ function Payment() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ IMPORTANT FIX (DATA SOURCE)
-  const savedData = JSON.parse(localStorage.getItem("paymentData"));
+  // ✅ FIX: support BOTH keys (checkoutData + paymentData)
+  const checkoutData = JSON.parse(localStorage.getItem("checkoutData"));
+  const paymentData = JSON.parse(localStorage.getItem("paymentData"));
 
-  const formData = location.state?.form || savedData?.form;
-  const cartItems = location.state?.cartItems || savedData?.cartItems;
+  const formData =
+    location.state?.form ||
+    checkoutData?.form ||
+    paymentData?.form;
+
+  const cartItems =
+    location.state?.cartItems ||
+    checkoutData?.cartItems ||
+    paymentData?.cartItems;
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  // ❌ If still empty → stop
+  // ❌ If no data
   if (!cartItems || cartItems.length === 0) {
     return <h2 style={{ color: "white" }}>No items found</h2>;
   }
@@ -311,6 +318,7 @@ function Payment() {
 
         alert("Order placed successfully");
 
+        localStorage.removeItem("checkoutData");
         localStorage.removeItem("paymentData");
 
         navigate("/productview");
@@ -330,9 +338,7 @@ function Payment() {
     try {
       const response = await axios.post(
         "https://my-react-app-backend-4517.onrender.com/create-order",
-        {
-          amount: totalAmount,   // ✅ CORRECT AMOUNT
-        }
+        { amount: totalAmount }
       );
 
       const order = response.data;
@@ -359,6 +365,7 @@ function Payment() {
 
           alert("Payment successful");
 
+          localStorage.removeItem("checkoutData");
           localStorage.removeItem("paymentData");
 
           navigate("/productview");
