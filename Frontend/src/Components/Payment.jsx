@@ -217,6 +217,7 @@
 // export default Payment;
 
 
+
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -227,25 +228,13 @@ function Payment() {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-
-  // ✅ FIX: support BOTH keys (checkoutData + paymentData)
-  const checkoutData = JSON.parse(localStorage.getItem("checkoutData"));
-  const paymentData = JSON.parse(localStorage.getItem("paymentData"));
-
-  const formData =
-    location.state?.form ||
-    checkoutData?.form ||
-    paymentData?.form;
-
-  const cartItems =
-    location.state?.cartItems ||
-    checkoutData?.cartItems ||
-    paymentData?.cartItems;
+  const formData = location.state?.form;
+  const cartData = location.state?.cartData;
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  // ❌ If no data
-  if (!cartItems || cartItems.length === 0) {
+  // ❌ STOP if no data
+  if (!cartData || cartData.length === 0) {
     return <h2 style={{ color: "white" }}>No items found</h2>;
   }
 
@@ -253,7 +242,7 @@ function Payment() {
   let subtotal = 0;
   let totalGST = 0;
 
-  const itemsWithGST = cartItems.map((item) => {
+  const itemsWithGST = cartData.map((item) => {
     const price = item.productId.price;
     const qty = item.quantity;
     const gst = item.productId.gst || 0;
@@ -303,25 +292,21 @@ function Payment() {
     // ✅ COD
     if (paymentMethod === "COD") {
       try {
-        await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/orders",
-          {
-            userId: user._id,
-            address: fullAddress,
-            paymentMethod: "COD",
-            items: itemsWithGST,
-            subtotal,
-            totalGST,
-            totalAmount,
-          }
-        );
+        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
+          userId: user._id,
+          address: fullAddress,
+          paymentMethod: "COD",
+          items: itemsWithGST,
+          subtotal,
+          totalGST,
+          totalAmount,
+        });
 
-        alert("Order placed successfully");
+        alert("Order placed (COD)");
 
-        localStorage.removeItem("checkoutData");
-        localStorage.removeItem("paymentData");
-
+        localStorage.removeItem(`cart_${user._id}`);
         navigate("/productview");
+
       } catch (err) {
         console.log(err);
       }
@@ -338,7 +323,7 @@ function Payment() {
     try {
       const response = await axios.post(
         "https://my-react-app-backend-4517.onrender.com/create-order",
-        { amount: totalAmount }
+        { amount: totalAmount }   // ✅ GST INCLUDED
       );
 
       const order = response.data;
@@ -351,11 +336,11 @@ function Payment() {
         description: "Order Payment",
         order_id: order.id,
 
-        handler: async function (response) {
+        handler: async function (razorpayResponse) {
           await axios.post(
             "https://my-react-app-backend-4517.onrender.com/verify-payment",
             {
-              ...response,
+              ...razorpayResponse,
               items: itemsWithGST,
               userId: user._id,
               address: fullAddress,
@@ -365,15 +350,13 @@ function Payment() {
 
           alert("Payment successful");
 
-          localStorage.removeItem("checkoutData");
-          localStorage.removeItem("paymentData");
-
+          localStorage.removeItem(`cart_${user._id}`);
           navigate("/productview");
         },
 
         prefill: {
-          name: formData?.name,
-          email: formData?.email,
+          name: user?.name,
+          email: user?.email,
           contact: formData?.phone,
         },
 
@@ -397,7 +380,7 @@ function Payment() {
         <div className="left">
           <h3>Order Summary</h3>
 
-          {cartItems.map((item) => {
+          {cartData.map((item) => {
             const base = item.productId.price * item.quantity;
             const gstAmount =
               (base * (item.productId.gst || 0)) / 100;
