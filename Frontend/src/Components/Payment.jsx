@@ -217,7 +217,8 @@
 // export default Payment;
 
 
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Payment.css";
@@ -227,16 +228,28 @@ function Payment() {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const formData = location.state?.form;
 
-  // ✅ GET CART FROM LOCALSTORAGE (MAIN FIX)
-  const localCart =
-    JSON.parse(localStorage.getItem(`cart_${user?._id}`)) || [];
-
-  // ✅ SUPPORT BOTH FLOW (checkout OR direct open)
-  const formData = location.state?.form || {};
-  const cartData = location.state?.cartData || localCart;
-
+  const [cartData, setCartData] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
+
+  // ✅ FETCH CART FROM BACKEND
+  useEffect(() => {
+    if (!user) {
+      alert("Login first");
+      navigate("/login");
+      return;
+    }
+
+    axios
+      .get(`https://my-react-app-backend-4517.onrender.com/cart/${user._id}`)
+      .then((res) => {
+        setCartData(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   // ✅ GST CALCULATION
   let subtotal = 0;
@@ -262,7 +275,7 @@ function Payment() {
     };
   });
 
-  const totalAmount = Number((subtotal + totalGST).toFixed(2));
+  const totalAmount = subtotal + totalGST;
 
   // Razorpay loader
   const loadRazorpay = () => {
@@ -276,103 +289,62 @@ function Payment() {
   };
 
   const orderPlace = async () => {
-    if (!user) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
-
     if (!paymentMethod) {
       alert("Select payment method");
       return;
     }
 
-    const fullAddress = `${formData?.address || ""}, ${formData?.city || ""}, ${formData?.state || ""} - ${formData?.pincode || ""}`;
+    const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state}`;
 
     // ✅ COD
     if (paymentMethod === "COD") {
-      try {
-        await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/orders",
-          {
-            userId: user._id,
-            address: fullAddress,
-            paymentMethod: "COD",
-            items: itemsWithGST,
-            subtotal,
-            totalGST,
-            totalAmount,
-          }
-        );
+      await axios.post(
+        "https://my-react-app-backend-4517.onrender.com/orders",
+        {
+          userId: user._id,
+          address: fullAddress,
+          paymentMethod: "COD",
+          items: itemsWithGST,
+        }
+      );
 
-        alert("Order placed (COD)");
-
-        localStorage.removeItem(`cart_${user._id}`);
-
-        navigate("/productview");
-      } catch (err) {
-        console.log(err);
-      }
+      alert("Order placed");
+      navigate("/productview");
       return;
     }
 
     // ✅ ONLINE PAYMENT
     const res = await loadRazorpay();
 
-    if (!res) {
-      alert("Razorpay failed to load");
-      return;
-    }
+    const order = await axios.post(
+      "https://my-react-app-backend-4517.onrender.com/create-order",
+      { amount: totalAmount }
+    );
 
-    try {
-      const response = await axios.post(
-        "https://my-react-app-backend-4517.onrender.com/create-order",
-        { amount: totalAmount } // ✅ correct amount
-      );
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.data.amount,
+      currency: "INR",
+      order_id: order.data.id,
 
-      const order = response.data;
+      handler: async function (response) {
+        await axios.post(
+          "https://my-react-app-backend-4517.onrender.com/verify-payment",
+          {
+            ...response,
+            cartData,
+            userId: user._id,
+            userName: user.name,
+            address: fullAddress,
+          }
+        );
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: "INR",
-        name: "My Store",
-        description: "Order Payment",
-        order_id: order.id,
+        alert("Payment success");
+        navigate("/productview");
+      },
+    };
 
-        handler: async function (razorpayResponse) {
-          await axios.post(
-            "https://my-react-app-backend-4517.onrender.com/verify-payment",
-            {
-              ...razorpayResponse,
-              items: itemsWithGST,
-              userId: user._id,
-              address: fullAddress,
-              totalAmount,
-            }
-          );
-
-          alert("Payment successful");
-
-          localStorage.removeItem(`cart_${user._id}`);
-
-          navigate("/productview");
-        },
-
-        prefill: {
-          name: formData?.name || user?.name,
-          email: user?.email,
-          contact: formData?.phone,
-        },
-
-        theme: { color: "#ff0000" },
-      };
-
-      new window.Razorpay(options).open();
-    } catch (err) {
-      console.log(err);
-      alert("Payment failed");
-    }
+    new window.Razorpay(options).open();
   };
 
   return (
@@ -381,7 +353,7 @@ function Payment() {
 
       <div className="payment-box">
 
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="left">
           <h3>Order Summary</h3>
 
@@ -396,7 +368,7 @@ function Payment() {
               return (
                 <div key={item._id} className="item">
                   <img
-                    src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+                    src={item.productId.imageUpload}
                     alt=""
                   />
                   <div>
@@ -415,15 +387,13 @@ function Payment() {
           <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT */}
         <div className="right">
           <h3>Delivery Details</h3>
 
           <div className="address">
-            <strong>{formData?.name || user?.name}</strong>
-            <p>
-              {formData?.address}, {formData?.city}, {formData?.state}
-            </p>
+            <strong>{formData?.name}</strong>
+            <p>{formData?.address}</p>
             <p>{formData?.phone}</p>
           </div>
 
