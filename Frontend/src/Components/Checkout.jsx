@@ -275,14 +275,14 @@ const product = location.state?.product || savedData?.product;
               const final = base + gstAmount;
 
               return (
-                <div key={item._id} className="product-card">
+                <div key={item._id} className="product-cardc">
                   <img
                     src={item.productId?.imageUpload}
                     alt={item.productId?.title}
                     style={{ width: "100px" }}
                   />
 
-                  <div className="product-info">
+                  <div className="product-infoc">
                     <p className="title">{item.productId.title}</p>
                     <p>Price: ₹{item.productId.price}</p>
                     <p>Qty: {item.quantity}</p>
@@ -300,11 +300,11 @@ const product = location.state?.product || savedData?.product;
               const final = base + gstAmount;
 
               return (
-                <div className="product-card">
+                <div className="product-cardc">
                   <img src={product.imageUpload} alt={product.title} />
 
-                  <div className="product-info">
-                    <p className="title">{product.title}</p>
+                  <div className="product-infoc">
+                    <p className="titlec">{product.title}</p>
                     <p>Price: ₹{product.price}</p>
                     <p>Qty: {product.quantity || 1}</p>
                     <p>GST ({gst}%): ₹{gstAmount.toFixed(2)}</p>
@@ -319,7 +319,7 @@ const product = location.state?.product || savedData?.product;
           <div style={{ marginTop: "15px" }}>
             <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
             <p>GST: ₹{totalGST.toFixed(2)}</p>
-            <h3 className="total">Grand Total: ₹{totalPrice}</h3>
+            <h3 className="totalc">Grand Total: ₹{totalPrice}</h3>
           </div>
         </div>
 
@@ -329,7 +329,6 @@ const product = location.state?.product || savedData?.product;
 
           <input name="name" placeholder="Full Name" onChange={handleChange} />
           <input name="phone" placeholder="Phone Number" onChange={handleChange} />
-          <input name="email" placeholder="Email Address" onChange={handleChange} />
           <textarea name="address" placeholder="Address" onChange={handleChange} />
 
           <div className="row">

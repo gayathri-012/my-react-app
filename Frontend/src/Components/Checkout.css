@@ -124,7 +124,7 @@
 }
 
 /* PRODUCT CARD */
-.product-card {
+.product-cardc {
   display: flex;
   gap: 15px;
   background: #1a1a1a;
@@ -134,19 +134,19 @@
   align-items: center;
 }
 
-.product-card img {
+.product-cardc img {
   width: 90px;
   height: 90px;
   object-fit: cover;
   border-radius: 6px;
 }
 
-.product-info {
+.product-infoc {
   flex: 1;
 }
 
 /* TOTAL */
-.total {
+.totalc {
   color: red;
   font-size: 18px;
   margin-top: 10px;
