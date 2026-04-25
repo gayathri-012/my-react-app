@@ -1,4 +1,4 @@
-.products-header {
+/* .products-header {
   position: relative;
   margin-top: 80px;
   padding: 20px;
@@ -106,4 +106,96 @@
 
 .back-btn:hover {
   background: #e63939;
+} */
+
+
+.payment-container {
+  padding: 20px;
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+}
+
+.payment-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.payment-box {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.left,
+.right {
+  flex: 1;
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* ITEM */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #1a1a1a;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.item-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.item-info {
+  flex: 1;
+}
+
+/* ADDRESS */
+.address {
+  background: #1a1a1a;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+/* PAYMENT METHOD */
+.method {
+  padding: 10px;
+  margin: 10px 0;
+  background: #222;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.method:hover {
+  background: #333;
+}
+
+.method.active {
+  border: 2px solid red;
+}
+
+/* BUTTON */
+.pay-btn {
+  width: 100%;
+  padding: 12px;
+  background: red;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.pay-btn:hover {
+  background: #cc0000;
 }
