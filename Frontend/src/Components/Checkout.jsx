@@ -240,22 +240,20 @@ const product = location.state?.product || savedData?.product;
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (!user) {
-      alert("Please login first");
-      navigate("/login", {
-        state: {
-          from: "/payment",
-          paymentData: {
-            form,
-            cartItems,
-            product,
-          },
-        },
-      });
-    } else {
-      navigate("/payment", {
-        state: { form, cartItems, product },
-      });
-    }
+  alert("Please login first");
+
+ 
+  localStorage.setItem(
+    "paymentData",
+    JSON.stringify({ form, cartItems, product })
+  );
+
+  navigate("/login");
+} else {
+  navigate("/payment", {
+    state: { form, cartItems, product },
+  });
+}
   };
 
   return (

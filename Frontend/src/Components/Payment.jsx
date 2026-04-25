@@ -227,10 +227,15 @@ function Payment() {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const formData = location.state?.form;
 
-  // ✅ ONLY cartItems (no cartData)
-  const cartItems = location.state?.cartItems;
+  // ✅ Restore data (important)
+  const savedData = JSON.parse(localStorage.getItem("paymentData"));
+
+  const formData =
+    location.state?.form || savedData?.form;
+
+  const cartItems =
+    location.state?.cartItems || savedData?.cartItems;
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
@@ -239,9 +244,9 @@ function Payment() {
   let totalGST = 0;
 
   const itemsWithGST = cartItems?.map((item) => {
-    const price = item.productId?.price || 0;
-    const qty = item.quantity || 0;
-    const gst = item.productId?.gst || 0;
+    const price = item.productId.price;
+    const qty = item.quantity;
+    const gst = item.productId.gst || 0;
 
     const base = price * qty;
     const gstAmount = (base * gst) / 100;
@@ -260,7 +265,17 @@ function Payment() {
 
   const totalAmount = subtotal + totalGST;
 
-  // ✅ PLACE ORDER
+  // Razorpay loader
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const orderPlace = async () => {
     if (!user) {
       alert("Please login first");
@@ -275,23 +290,110 @@ function Payment() {
 
     const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
 
+    // ✅ COD
+    if (paymentMethod === "COD") {
+      try {
+        await axios.post(
+          "https://my-react-app-backend-4517.onrender.com/orders",
+          {
+            userId: user._id,
+            address: fullAddress,
+            paymentMethod: "COD",
+            items: itemsWithGST,
+            subtotal,
+            totalGST,
+            totalAmount,
+          }
+        );
+
+        alert("Order placed (Cash on Delivery)");
+
+        localStorage.removeItem("paymentData");
+
+        navigate("/productview");
+      } catch (err) {
+        console.log(err);
+      }
+      return;
+    }
+
+    // ✅ ONLINE PAYMENT
+    const res = await loadRazorpay();
+
+    if (!res) {
+      alert("Razorpay failed to load");
+      return;
+    }
+
     try {
-      await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
-        userId: user._id,
-        address: fullAddress,
-        paymentMethod,
-        items: itemsWithGST,
-        subtotal,
-        totalGST,
-        totalAmount,
-      });
+      const response = await axios.post(
+        "https://my-react-app-backend-4517.onrender.com/create-order",
+        { amount: totalAmount } // ✅ GST included
+      );
 
-      alert("Order placed successfully!");
-      navigate("/productview");
+      const order = response.data;
 
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: "INR",
+        name: "My Store",
+        description: "Order Payment",
+        order_id: order.id,
+
+        handler: async function (razorpayResponse) {
+          const data = {
+            razorpay_payment_id:
+              razorpayResponse.razorpay_payment_id,
+            razorpay_order_id:
+              razorpayResponse.razorpay_order_id,
+            razorpay_signature:
+              razorpayResponse.razorpay_signature,
+
+            items: itemsWithGST,
+            userId: user._id,
+            address: fullAddress,
+
+            subtotal,
+            totalGST,
+            totalAmount,
+          };
+
+          try {
+            const res = await axios.post(
+              "https://my-react-app-backend-4517.onrender.com/verify-payment",
+              data
+            );
+
+            if (res.data.success) {
+              alert("Payment Verified & Order Placed");
+
+              localStorage.removeItem("paymentData");
+
+              navigate("/productview");
+            } else {
+              alert("Payment verification failed");
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        },
+
+        prefill: {
+          name: formData?.name,
+          email: formData?.email,
+          contact: formData?.phone,
+        },
+
+        theme: {
+          color: "#ff0000",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
     } catch (err) {
-      console.log(err);
-      alert("Order failed");
+      console.log("Payment Error:", err);
     }
   };
 
@@ -305,35 +407,31 @@ function Payment() {
         <div className="left">
           <h3>Order Summary</h3>
 
-          {cartItems && cartItems.length > 0 ? (
-            cartItems.map((item) => {
-              const price = item.productId?.price || 0;
-              const qty = item.quantity || 0;
-              const gst = item.productId?.gst || 0;
+          {cartItems?.map((item) => {
+            const base =
+              item.productId.price * item.quantity;
+            const gstAmount =
+              (base * (item.productId.gst || 0)) / 100;
 
-              const base = price * qty;
-              const gstAmount = (base * gst) / 100;
+            return (
+              <div key={item._id} className="item">
+                <img
+                  src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+                  alt=""
+                />
 
-              return (
-                <div key={item._id} className="item">
-                  <img
-                    src={`https://my-react-app-backend-4517.onrender.com/${item.productId?.imageUpload}`}
-                    alt={item.productId?.title}
-                    className="item-img"
-                  />
-
-                  <div className="item-info">
-                    <p>{item.productId?.title}</p>
-                    <p>Qty: {qty}</p>
-                  </div>
-
-                  <span>₹{(base + gstAmount).toFixed(2)}</span>
+                <div>
+                  <p>{item.productId.title}</p>
+                  <p>Qty: {item.quantity}</p>
+                  <p>GST: ₹{gstAmount.toFixed(2)}</p>
                 </div>
-              );
-            })
-          ) : (
-            <p>No items found</p>
-          )}
+
+                <span>
+                  ₹{(base + gstAmount).toFixed(2)}
+                </span>
+              </div>
+            );
+          })}
 
           <h3>Subtotal: ₹{subtotal.toFixed(2)}</h3>
           <h3>GST: ₹{totalGST.toFixed(2)}</h3>
@@ -347,8 +445,8 @@ function Payment() {
           <div className="address">
             <strong>{formData?.name}</strong>
             <p>
-              {formData?.address}, {formData?.city}, {formData?.state} -{" "}
-              {formData?.pincode}
+              {formData?.address}, {formData?.city},{" "}
+              {formData?.state} - {formData?.pincode}
             </p>
             <p>{formData?.phone}</p>
           </div>
@@ -356,17 +454,21 @@ function Payment() {
           <h3>Payment Method</h3>
 
           <div
-            className={`method ${paymentMethod === "COD" ? "active" : ""}`}
+            className={`method ${
+              paymentMethod === "COD" ? "active" : ""
+            }`}
             onClick={() => setPaymentMethod("COD")}
           >
             Cash on Delivery
           </div>
 
           <div
-            className={`method ${paymentMethod === "ONLINE" ? "active" : ""}`}
+            className={`method ${
+              paymentMethod === "ONLINE" ? "active" : ""
+            }`}
             onClick={() => setPaymentMethod("ONLINE")}
           >
-            Pay Online
+            Pay Online (Card / UPI / Net Banking)
           </div>
 
           <button className="pay-btn" onClick={orderPlace}>
