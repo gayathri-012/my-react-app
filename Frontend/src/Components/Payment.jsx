@@ -216,6 +216,7 @@
 
 // export default Payment;
 
+
 import React, { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -232,11 +233,11 @@ function Payment() {
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  // ✅ GST CALCULATION
+  // ✅ GST CALCULATION ADDED
   let subtotal = 0;
   let totalGST = 0;
 
-  const products = cartData?.map((item) => {
+  const itemsWithGST = cartData?.map(item => {
     const price = item.productId.price;
     const qty = item.quantity;
     const gst = item.productId.gst || 0;
@@ -250,13 +251,13 @@ function Payment() {
     return {
       productId: item.productId._id,
       quantity: qty,
-      price: price,
-      gst: gst,
-      gstAmount: gstAmount,
+      price,
+      gst,
+      gstAmount
     };
-  }) || [];
+  });
 
-  const totalPrice = Number((subtotal + totalGST).toFixed(2));
+  const totalAmount = subtotal + totalGST;
 
   // Razorpay loader
   const loadRazorpay = () => {
@@ -283,23 +284,19 @@ function Payment() {
 
     const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
 
-    // ✅ COD ORDER
+    // ✅ COD ORDER WITH GST
     if (paymentMethod === "COD") {
       try {
-        await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/orders",
-          {
-            userId: user._id,
-            userName: user.name || user.firstname,
-            address: fullAddress,
-            paymentMethod: "COD",
+        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
+          userId: user._id,
+          address: fullAddress,
+          paymentMethod: "COD",
 
-            products,
-            subtotal,
-            totalGST,
-            totalAmount: totalPrice,
-          }
-        );
+          items: itemsWithGST,   // ✅ GST items
+          subtotal,
+          totalGST,
+          totalAmount
+        });
 
         alert("Order placed (Cash on Delivery)");
 
@@ -312,7 +309,7 @@ function Payment() {
       return;
     }
 
-    // ✅ ONLINE PAYMENT
+    // ONLINE PAYMENT
     const res = await loadRazorpay();
 
     if (!res) {
@@ -323,7 +320,7 @@ function Payment() {
     try {
       const response = await axios.post(
         "https://my-react-app-backend-4517.onrender.com/create-order",
-        { amount: totalPrice }
+        { amount: totalAmount }   // ✅ GST included
       );
 
       const order = response.data;
@@ -342,14 +339,14 @@ function Payment() {
             razorpay_order_id: razorpayResponse.razorpay_order_id,
             razorpay_signature: razorpayResponse.razorpay_signature,
 
+            items: itemsWithGST,   // ✅ GST items
             userId: user._id,
             userName: user.name || user.firstname,
             address: fullAddress,
 
-            products,
             subtotal,
             totalGST,
-            totalAmount: totalPrice,
+            totalAmount
           };
 
           try {
@@ -402,15 +399,12 @@ function Payment() {
 
       <div className="payment-box">
 
-        {/* LEFT SIDE */}
         <div className="left">
           <h3>Order Summary</h3>
 
           {cartData?.map((item) => {
             const base = item.productId.price * item.quantity;
-            const gst = item.productId.gst || 0;
-            const gstAmount = (base * gst) / 100;
-            const final = base + gstAmount;
+            const gstAmount = (base * (item.productId.gst || 0)) / 100;
 
             return (
               <div key={item._id} className="item">
@@ -418,19 +412,17 @@ function Payment() {
                 <div>
                   <p>{item.productId.title}</p>
                   <p>Qty: {item.quantity}</p>
-                  <p>GST: {gst}%</p>
                 </div>
-                <span>₹{final.toFixed(2)}</span>
+                <span>₹{base + gstAmount}</span>
               </div>
             );
           })}
 
-          <h4>Subtotal: ₹{subtotal.toFixed(2)}</h4>
-          <h4>GST: ₹{totalGST.toFixed(2)}</h4>
-          <h3>Total: ₹{totalPrice}</h3>
+          <h3>Subtotal: ₹{subtotal}</h3>
+          <h3>GST: ₹{totalGST.toFixed(2)}</h3>
+          <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="right">
           <h3>Delivery Details</h3>
 
