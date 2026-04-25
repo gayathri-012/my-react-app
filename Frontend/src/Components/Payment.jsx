@@ -303,29 +303,35 @@ function Payment() {
   // ✅ COD
   if (paymentMethod === "COD") {
     try {
-      await axios.post(
-        "https://my-react-app-backend-4517.onrender.com/orders",
-        {
-          userId: user._id,
-          address: fullAddress,
-          paymentMethod: "COD",
-
-          // ✅ FIXED FORMAT
-          items: cartData.map(item => ({
-            productId: item.productId._id,
-            quantity: item.quantity
-          }))
-        }
-      );
-
-      alert("Order placed successfully (COD) ✅");
-
-      navigate("/productview");
-
-    } catch (err) {
-      console.log("COD ERROR:", err);
-      alert("COD failed ❌");
+  const res = await axios.post(
+    "https://my-react-app-backend-4517.onrender.com/orders",
+    {
+      userId: user._id,
+      address: fullAddress,
+      paymentMethod: "COD",
+      items: cartData.map(item => ({
+        productId: item.productId._id,
+        quantity: item.quantity
+      }))
     }
+  );
+
+  console.log("COD RESPONSE:", res.data);
+
+  // ✅ ONLY SUCCESS
+  alert("Order placed successfully (COD) ");
+  navigate("/productview");
+
+} catch (err) {
+  console.log("FULL ERROR:", err);
+
+  // 🔍 DEBUG
+  if (err.response) {
+    console.log("ERROR RESPONSE:", err.response.data);
+  }
+
+  alert("COD failed ");
+}
 
     return;
   }
@@ -376,15 +382,15 @@ function Payment() {
           console.log("VERIFY RESPONSE:", verify.data);
 
           if (verify.data.success) {
-            alert("Payment Verified & Order Placed ✅");
+            alert("Payment Verified & Order Placed ");
             navigate("/productview");
           } else {
-            alert("Verification failed ❌");
+            alert("Verification failed ");
           }
 
         } catch (err) {
           console.log("VERIFY ERROR:", err);
-          alert("Payment done but verification failed ❌");
+          alert("Payment done but verification failed ");
         }
       },
 
@@ -403,7 +409,7 @@ function Payment() {
 
   } catch (err) {
     console.log("PAYMENT ERROR:", err);
-    alert("Payment failed ❌");
+    alert("Payment failed ");
   }
 };
   return (
