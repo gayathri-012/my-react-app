@@ -292,87 +292,120 @@ function Payment() {
     });
   };
 
-  // ✅ PLACE ORDER
-  const orderPlace = async () => {
-    if (!paymentMethod) {
-      alert("Select payment method");
-      return;
-    }
+ const orderPlace = async () => {
+  if (!paymentMethod) {
+    alert("Select payment method");
+    return;
+  }
 
-    const fullAddress = `${formData?.address || ""}, ${formData?.city || ""}, ${formData?.state || ""} - ${formData?.pincode || ""}`;
+  const fullAddress = `${formData?.address || ""}, ${formData?.city || ""}, ${formData?.state || ""} - ${formData?.pincode || ""}`;
 
-    // ✅ COD
-    if (paymentMethod === "COD") {
-      try {
-        await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/orders",
-          {
-            userId: user._id,
-            address: fullAddress,
-            paymentMethod: "COD",
-            items: itemsWithGST,
-            subtotal,
-            totalGST,
-            totalAmount,
-          }
-        );
-
-        alert("Order placed successfully");
-
-        navigate("/productview");
-      } catch (err) {
-        console.log(err);
-      }
-      return;
-    }
-
-    // ✅ ONLINE PAYMENT
-    const res = await loadRazorpay();
-
-    if (!res) {
-      alert("Razorpay failed");
-      return;
-    }
-
+  // ✅ COD
+  if (paymentMethod === "COD") {
     try {
-      const response = await axios.post(
-        "https://my-react-app-backend-4517.onrender.com/create-order",
-        { amount: totalAmount }
+      await axios.post(
+        "https://my-react-app-backend-4517.onrender.com/orders",
+        {
+          userId: user._id,
+          address: fullAddress,
+          paymentMethod: "COD",
+
+          // ✅ FIXED FORMAT
+          items: cartData.map(item => ({
+            productId: item.productId._id,
+            quantity: item.quantity
+          }))
+        }
       );
 
-      const order = response.data;
+      alert("Order placed successfully (COD) ✅");
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: "INR",
-        name: "My Store",
-        order_id: order.id,
+      navigate("/productview");
 
-        handler: async function (razorpayResponse) {
-          await axios.post(
+    } catch (err) {
+      console.log("COD ERROR:", err);
+      alert("COD failed ❌");
+    }
+
+    return;
+  }
+
+  // ✅ ONLINE PAYMENT
+  const res = await loadRazorpay();
+
+  if (!res) {
+    alert("Razorpay failed");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "https://my-react-app-backend-4517.onrender.com/create-order",
+      { amount: totalAmount }
+    );
+
+    const order = response.data;
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: "My Store",
+      order_id: order.id,
+
+      handler: async function (razorpayResponse) {
+        try {
+          console.log("RAZORPAY SUCCESS:", razorpayResponse);
+
+          const verify = await axios.post(
             "https://my-react-app-backend-4517.onrender.com/verify-payment",
             {
-              ...razorpayResponse,
-              items: itemsWithGST,
+              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+              razorpay_order_id: razorpayResponse.razorpay_order_id,
+              razorpay_signature: razorpayResponse.razorpay_signature,
+
+              // ✅ IMPORTANT FIX
+              cartData: cartData,
+
               userId: user._id,
-              address: fullAddress,
-              totalAmount,
+              userName: user.name,
+              address: fullAddress
             }
           );
 
-          alert("Payment successful");
-          navigate("/productview");
-        },
-      };
+          console.log("VERIFY RESPONSE:", verify.data);
 
-      new window.Razorpay(options).open();
-    } catch (err) {
-      console.log(err);
-      alert("Payment failed");
-    }
-  };
+          if (verify.data.success) {
+            alert("Payment Verified & Order Placed ✅");
+            navigate("/productview");
+          } else {
+            alert("Verification failed ❌");
+          }
 
+        } catch (err) {
+          console.log("VERIFY ERROR:", err);
+          alert("Payment done but verification failed ❌");
+        }
+      },
+
+      modal: {
+        ondismiss: function () {
+          alert("Payment cancelled");
+        }
+      },
+
+      theme: {
+        color: "#ff0000",
+      },
+    };
+
+    new window.Razorpay(options).open();
+
+  } catch (err) {
+    console.log("PAYMENT ERROR:", err);
+    alert("Payment failed ❌");
+  }
+};
   return (
     <div className="payment-container">
       <h2>Payment</h2>
@@ -394,7 +427,7 @@ function Payment() {
               return (
                 <div key={item._id} className="item">
                   <img
-                    src={`https://my-react-app-backend-4517.onrender.com/uploads/${item.productId.imageUpload}`}
+                    src={item.productId.imageUpload}
                     alt=""
                   />
                   <div>
