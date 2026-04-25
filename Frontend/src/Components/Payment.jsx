@@ -217,8 +217,7 @@
 // export default Payment;
 
 
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Payment.css";
@@ -228,28 +227,12 @@ function Payment() {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  // ✅ KEEP YOUR ORIGINAL FLOW
   const formData = location.state?.form;
+  const cartData = location.state?.cartData || [];
 
-  const [cartData, setCartData] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
-
-  // ✅ FETCH CART FROM BACKEND
-  useEffect(() => {
-    if (!user) {
-      alert("Login first");
-      navigate("/login");
-      return;
-    }
-
-    axios
-      .get(`https://my-react-app-backend-4517.onrender.com/cart/${user._id}`)
-      .then((res) => {
-        setCartData(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
 
   // ✅ GST CALCULATION
   let subtotal = 0;
@@ -277,7 +260,6 @@ function Payment() {
 
   const totalAmount = subtotal + totalGST;
 
-  // Razorpay loader
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -289,62 +271,125 @@ function Payment() {
   };
 
   const orderPlace = async () => {
+    if (!user) {
+      alert("Please login first");
+      navigate("/login");
+      return;
+    }
+
     if (!paymentMethod) {
       alert("Select payment method");
       return;
     }
 
-    const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state}`;
+    const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
 
     // ✅ COD
     if (paymentMethod === "COD") {
-      await axios.post(
-        "https://my-react-app-backend-4517.onrender.com/orders",
-        {
+      try {
+        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
           userId: user._id,
           address: fullAddress,
           paymentMethod: "COD",
           items: itemsWithGST,
-        }
-      );
+          subtotal,
+          totalGST,
+          totalAmount
+        });
 
-      alert("Order placed");
-      navigate("/productview");
+        alert("Order placed (Cash on Delivery)");
+
+        localStorage.removeItem(`cart_${user._id}`);
+        navigate("/productview");
+
+      } catch (err) {
+        console.log(err);
+      }
       return;
     }
 
     // ✅ ONLINE PAYMENT
     const res = await loadRazorpay();
 
-    const order = await axios.post(
-      "https://my-react-app-backend-4517.onrender.com/create-order",
-      { amount: totalAmount }
-    );
+    if (!res) {
+      alert("Razorpay failed to load");
+      return;
+    }
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.data.amount,
-      currency: "INR",
-      order_id: order.data.id,
+    try {
+      const response = await axios.post(
+        "https://my-react-app-backend-4517.onrender.com/create-order",
+        { amount: totalAmount } // ✅ GST INCLUDED
+      );
 
-      handler: async function (response) {
-        await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/verify-payment",
-          {
-            ...response,
-            cartData,
+      const order = response.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: "INR",
+        name: "My Store",
+        description: "Order Payment",
+        order_id: order.id,
+
+        handler: async function (razorpayResponse) {
+          const data = {
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
+
+            items: itemsWithGST,
             userId: user._id,
-            userName: user.name,
+            userName: user.name || user.firstname,
             address: fullAddress,
+
+            subtotal,
+            totalGST,
+            totalAmount,
+          };
+
+          try {
+            const res = await axios.post(
+              "https://my-react-app-backend-4517.onrender.com/verify-payment",
+              data
+            );
+
+            if (res.data.success) {
+              alert("Payment Verified & Order Placed");
+
+              localStorage.removeItem(`cart_${user._id}`);
+              navigate("/productview");
+            } else {
+              alert("Payment verification failed");
+            }
+          } catch (err) {
+            console.log(err);
           }
-        );
+        },
 
-        alert("Payment success");
-        navigate("/productview");
-      },
-    };
+        modal: {
+          ondismiss: function () {
+            alert("Payment cancelled");
+          },
+        },
 
-    new window.Razorpay(options).open();
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: formData?.phone,
+        },
+
+        theme: {
+          color: "#ff0000",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+    } catch (err) {
+      console.log("Payment Error:", err);
+    }
   };
 
   return (
@@ -368,7 +413,7 @@ function Payment() {
               return (
                 <div key={item._id} className="item">
                   <img
-                    src={item.productId.imageUpload}
+                    src={`${item.productId.imageUpload}`}
                     alt=""
                   />
                   <div>
@@ -393,7 +438,9 @@ function Payment() {
 
           <div className="address">
             <strong>{formData?.name}</strong>
-            <p>{formData?.address}</p>
+            <p>
+              {formData?.address}, {formData?.city}, {formData?.state} - {formData?.pincode}
+            </p>
             <p>{formData?.phone}</p>
           </div>
 
@@ -410,7 +457,7 @@ function Payment() {
             className={`method ${paymentMethod === "ONLINE" ? "active" : ""}`}
             onClick={() => setPaymentMethod("ONLINE")}
           >
-            Pay Online
+            Pay Online (Card / UPI / Net Banking)
           </div>
 
           <button className="pay-btn" onClick={orderPlace}>
