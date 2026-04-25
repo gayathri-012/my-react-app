@@ -266,6 +266,76 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// app.post("/orders", async (req, res) => {
+//   try {
+//     console.log("ORDER DATA:", req.body);
+
+//     const user = await UserModel.findById(req.body.userId);
+
+//     if (!user) {
+//       return res.status(400).json({ error: "User not found" });
+//     }
+
+//     let total = 0;
+//     const items = [];
+
+
+//     for (let item of req.body.items) {
+//       const product = await ProductModel.findById(item.productId);
+
+//       if (!product) continue;
+
+//       items.push({
+//         productId: product._id,
+//         quantity: item.quantity,
+//         price: product.price
+//       });
+
+//       total += product.price * item.quantity;
+//     }
+
+
+//     const order = await OrderModel.create({
+//       userId: req.body.userId,
+//       userName: user.name || user.firstname,
+//       address: req.body.address,
+//       paymentMethod: req.body.paymentMethod,
+//       status: "Pending",
+//       paymentId: req.body.paymentId,
+
+//       items: items,
+//       totalPrice: total
+//     });
+
+
+//     await CartModel.deleteMany({ userId: req.body.userId });
+
+
+//     transporter.sendMail({
+//       from: process.env.EMAIL_USER,
+//       to: user.email,
+//       subject: "From HRX- Order Confirmation",
+//       html: `
+//         <h2>Order Placed Successfully</h2>
+//         <p>Hello ${user.name || user.firstname},</p>
+//         <p>Your order has been placed successfully.</p>
+//         <p><strong>Order ID:</strong> ${order._id}</p>
+//         <p><strong>Total:</strong> ₹${order.totalPrice}</p>
+//         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+//         <p>Thank you for shopping with us!</p>
+//       `
+//     });
+
+
+//     res.json(order);
+
+//   } catch (err) {
+//     console.error("ORDER ERROR:", err);
+//     res.status(500).json(err);
+//   }
+// });
+
+
 app.post("/orders", async (req, res) => {
   try {
     console.log("ORDER DATA:", req.body);
@@ -279,7 +349,7 @@ app.post("/orders", async (req, res) => {
     let total = 0;
     const items = [];
 
-
+    // ✅ Prepare order items
     for (let item of req.body.items) {
       const product = await ProductModel.findById(item.productId);
 
@@ -294,7 +364,7 @@ app.post("/orders", async (req, res) => {
       total += product.price * item.quantity;
     }
 
-
+    // ✅ Create order
     const order = await OrderModel.create({
       userId: req.body.userId,
       userName: user.name || user.firstname,
@@ -302,19 +372,29 @@ app.post("/orders", async (req, res) => {
       paymentMethod: req.body.paymentMethod,
       status: "Pending",
       paymentId: req.body.paymentId,
-
       items: items,
       totalPrice: total
     });
 
+    // ✅ Generate invoice file path
+    const invoicePath = path.join(
+      __dirname,
+      `invoice_${order._id}.pdf`
+    );
 
+    // ✅ Generate invoice
+    await generateInvoice(order, invoicePath);
+
+    console.log("Invoice generated at:", invoicePath);
+
+    // ✅ Clear cart
     await CartModel.deleteMany({ userId: req.body.userId });
 
-
-    transporter.sendMail({
+    // ✅ Send email with attachment
+    const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
-      subject: "From HRX- Order Confirmation",
+      subject: "From HRX - Order Confirmation with Invoice",
       html: `
         <h2>Order Placed Successfully</h2>
         <p>Hello ${user.name || user.firstname},</p>
@@ -322,10 +402,28 @@ app.post("/orders", async (req, res) => {
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Total:</strong> ₹${order.totalPrice}</p>
         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+        <p><strong>Address:</strong> ${order.address}</p>
+        <br/>
+        <p>Invoice is attached with this email.</p>
         <p>Thank you for shopping with us!</p>
-      `
-    });
+      `,
+      attachments: [
+        {
+          filename: `invoice_${order._id}.pdf`,
+          path: invoicePath
+        }
+      ]
+    };
 
+    await transporter.sendMail(mailOptions);
+
+    console.log("Email sent with invoice");
+
+    // ✅ Delete invoice after sending
+    if (fs.existsSync(invoicePath)) {
+      fs.unlinkSync(invoicePath);
+      console.log("Invoice deleted after sending");
+    }
 
     res.json(order);
 
@@ -334,7 +432,6 @@ app.post("/orders", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
 
 // get all orders
 app.get("/orders", async (req, res) => {
