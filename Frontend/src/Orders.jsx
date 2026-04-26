@@ -34,7 +34,7 @@ function Orders() {
   }
 
   return (
-    <div className="orders-container">
+    <div className="oorders-container">
 
 
       <div style={{ marginBottom: "20px" }}>
@@ -46,17 +46,17 @@ function Orders() {
         </p>
       </div>
 
-      <h2 className="orders-title">My Orders</h2>
+      <h2 className="oorders-title">My Orders</h2>
 
       {orders.length === 0 ? (
-        <p className="no-orders">No orders found</p>
+        <p className="ono-orders">No orders found</p>
       ) : (
         orders.map((order) => (
-          <div className="order-card" key={order._id}>
+          <div className="oorder-card" key={order._id}>
 
 
             {order.items?.map((item, index) => (
-              <div className="order-item" key={index}>
+              <div className="oorder-item" key={index}>
 
                 <img
                   src={
@@ -65,12 +65,12 @@ function Orders() {
                       : "/no-image.png"
                   }
                   alt="product"
-                  className="order-img"
+                  className="oorder-img"
                 />
 
-                <div className="order-details">
+                <div className="oorder-details">
 
-                  <div className="product-title">
+                  <div className="oproduct-title">
                     {item.productId?.title || "Product Not Available"}
                   </div>
 
@@ -86,7 +86,7 @@ function Orders() {
             ))}
 
 
-            <div className="order-summary">
+            <div className="oorder-summary">
               <div><strong>Total:</strong> ₹{order.totalPrice}</div>
               <div><strong>Payment:</strong> {order.paymentMethod}</div>
 
@@ -108,3 +108,4 @@ function Orders() {
 }
 
 export default Orders;
+

@@ -1,4 +1,4 @@
-.orders-container {
+ .oorders-container {
   padding: 20px;
   max-width: 900px;
   margin: auto;
@@ -6,12 +6,12 @@
   margin-top: 80px;
 }
 
-.orders-title {
+.oorders-title {
   text-align: center;
   margin-bottom: 25px;
 }
 
-.order-card {
+.oorder-card {
   background: #1c1c1c;
   border-radius: 12px;
   padding: 20px;
@@ -19,7 +19,7 @@
 }
 
 
-.order-item {
+.oorder-item {
   display: flex;
   gap: 20px;
   align-items: center;
@@ -29,7 +29,7 @@
 }
 
 
-.order-img {
+.oorder-img {
   width: 120px;
   height: 120px;
   object-fit: cover;
@@ -38,31 +38,31 @@
 }
 
 
-.order-details {
+.oorder-details {
   flex: 1;
 }
 
 
-.product-title {
+.oproduct-title {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 5px;
 }
 
-.order-details div {
+.oorder-details div {
   font-size: 14px;
   color: #ccc;
   margin: 4px 0;
 }
 
 
-.order-summary {
+.oorder-summary {
   margin-top: 15px;
   padding-top: 10px;
   border-top: 1px solid #333;
 }
 
-.order-summary div {
+.oorder-summary div {
   margin: 5px 0;
   font-size: 14px;
 }
@@ -85,8 +85,11 @@
 }
 
 
-.no-orders {
+.ono-orders {
   text-align: center;
   font-size: 16px;
   margin-top: 20px;
-}
+} 
+
+
+

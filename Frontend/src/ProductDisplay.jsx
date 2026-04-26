@@ -95,35 +95,33 @@ function ProductDisplay() {
            
 
 
-            <button
+           <button
   className="buy"
   onClick={() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    
     if (!user) {
-      alert("Please login first");   
-      navigate("/login");            
+      alert("Please login first");
+      navigate("/login");
       return;
     }
 
-
     localStorage.setItem(
-    "checkoutData",
-    JSON.stringify({
-      product: {
-        ...product,
-        quantity: count
-      }
-    })
-  );
-  
+      "checkoutData",
+      JSON.stringify({
+        product: {
+          ...product,
+          quantity: count,
+        },
+      })
+    );
 
+   
     navigate("/checkout", {
       state: {
-        singleProduct: product,
-        quantity: count
-      }
+        ...product,
+        quantity: count,
+      },
     });
   }}
 >

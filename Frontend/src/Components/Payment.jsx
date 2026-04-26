@@ -1,225 +1,4 @@
-// import React, { useState } from "react";
-// import { useNavigate, useParams, useLocation } from "react-router-dom";
-// import axios from "axios";
-// import "./Payment.css";
-
-// function Payment() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const user = JSON.parse(localStorage.getItem("user"));
-//   const formData = location.state?.form;
-//   const cartData = location.state?.cartData;
-
-//   const [paymentMethod, setPaymentMethod] = useState("");
-
-//   const totalPrice = cartData
-//     ? cartData.reduce(
-//       (sum, item) => sum + item.productId.price * item.quantity,
-//       0
-//     )
-//     : 0;
-
-//   const loadRazorpay = () => {
-//     return new Promise((resolve) => {
-//       const script = document.createElement("script");
-//       script.src = "https://checkout.razorpay.com/v1/checkout.js";
-//       script.onload = () => resolve(true);
-//       script.onerror = () => resolve(false);
-//       document.body.appendChild(script);
-//     });
-//   };
-
-//   const orderPlace = async () => {
-//     if (!user) {
-//       alert("Please login first");
-//       navigate("/login");
-//       return;
-//     }
-
-//     if (!paymentMethod) {
-//       alert("Select payment method");
-//       return;
-//     }
-
-//     const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
-
-//     if (paymentMethod === "COD") {
-//       try {
-//         await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
-//           userId: user._id,
-//           address: fullAddress,
-//           paymentMethod: "COD",
-
-//           items: cartData.map(item => ({
-//             productId: item.productId._id,
-//             quantity: item.quantity
-//           }))
-//         });
-
-//         alert("Order placed (Cash on Delivery)");
-
-//         localStorage.removeItem(`cart_${user._id}`);
-//         navigate("/productview");
-
-//       } catch (err) {
-//         console.log(err);
-//       }
-//       return;
-//     }
-//     const res = await loadRazorpay();
-
-//     if (!res) {
-//       alert("Razorpay failed to load");
-//       return;
-//     }
-
-//     try {
-//       const response = await axios.post(
-//         "https://my-react-app-backend-4517.onrender.com/create-order",
-//         { amount: totalPrice }
-//       );
-
-//       const order = response.data;
-
-//       const options = {
-//         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-//         amount: order.amount,
-//         currency: "INR",
-//         name: "My Store",
-//         description: "Order Payment",
-//         order_id: order.id,
-
-//         handler: async function (razorpayResponse) {
-//           const data = {
-//             razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-//             razorpay_order_id: razorpayResponse.razorpay_order_id,
-//             razorpay_signature: razorpayResponse.razorpay_signature,
-//             cartData,
-//             userId: user._id,
-//             userName: user.name || user.firstname,
-//             address: fullAddress,
-//             amount: totalPrice,
-//           };
-
-//           try {
-//             const res = await axios.post(
-//               "https://my-react-app-backend-4517.onrender.com/verify-payment",
-//               data
-//             );
-
-//             if (res.data.success) {
-//               alert("Payment Verified & Order Placed");
-
-//               localStorage.removeItem(`cart_${user._id}`);
-
-//               navigate("/productview");
-//             } else {
-//               alert("Payment verification failed");
-//             }
-//           } catch (err) {
-//             console.log(err);
-//           }
-//         },
-
-//         modal: {
-//           ondismiss: function () {
-//             alert("Payment cancelled");
-//           },
-//         },
-
-//         prefill: {
-//           name: user?.name,
-//           email: user?.email,
-//           contact: formData?.phone,
-//         },
-
-//         theme: {
-//           color: "#ff0000",
-//         },
-//       };
-
-//       const paymentObject = new window.Razorpay(options);
-//       paymentObject.open();
-//     } catch (err) {
-//       console.log("Payment Error:", err);
-//     }
-//   };
-
-//   return (
-//     <div className="payment-container">
-//       <h2>Payment</h2>
-
-//       <div className="payment-box">
-
-
-//         <div className="left">
-//           <h3>Order Summary</h3>
-
-//           {cartData?.map((item) => (
-//             <div key={item._id} className="item">
-//               <img
-//                 src={item.productId.imageUpload}
-//                 alt=""
-//               />
-//               <div>
-//                 <p>{item.productId.title}</p>
-//                 <p>Qty: {item.quantity}</p>
-//               </div>
-//               <span>₹{item.productId.price * item.quantity}</span>
-//             </div>
-//           ))}
-
-//           <h3>Total: ₹{totalPrice}</h3>
-//         </div>
-
-
-//         <div className="right">
-//           <h3>Delivery Details</h3>
-
-//           <div className="address">
-//             <strong>{formData?.name}</strong>
-//             <p>
-//               {formData?.address}, {formData?.city}, {formData?.state} -{" "}
-//               {formData?.pincode}
-//             </p>
-//             <p>{formData?.phone}</p>
-//           </div>
-
-//           <h3>Payment Method</h3>
-
-
-//           <div
-//             className={`method ${paymentMethod === "COD" ? "active" : ""}`}
-//             onClick={() => setPaymentMethod("COD")}
-//           >
-//             Cash on Delivery
-//           </div>
-
-
-//           <div
-//             className={`method ${paymentMethod === "ONLINE" ? "active" : ""}`}
-//             onClick={() => setPaymentMethod("ONLINE")}
-//           >
-//             Pay Online (Card / UPI / Net Banking)
-//           </div>
-
-//           <button className="pay-btn" onClick={orderPlace}>
-//             Place Order
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Payment;
-
-
-
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Payment.css";
@@ -230,58 +9,45 @@ function Payment() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const [cartData, setCartData] = useState([]);
+  const savedData = JSON.parse(localStorage.getItem("paymentData"));
+
+  const formData = location.state?.form || savedData?.form;
+  const cartItems = location.state?.cartItems || savedData?.cartItems;
+  const product = location.state?.product || savedData?.product;
+
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  const formData = location.state?.form || {};
 
-  // ✅ LOAD CART (2 ways: state OR backend)
-  useEffect(() => {
-    if (!user) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
-
-    // ✅ If coming from checkout
-    if (location.state?.cartData) {
-      setCartData(location.state.cartData);
-    } else {
-      // ✅ fallback → fetch from backend
-      axios
-        .get(`https://my-react-app-backend-4517.onrender.com/cart/${user._id}`)
-        .then((res) => setCartData(res.data))
-        .catch((err) => console.log(err));
-    }
-  }, []);
-
-  // ✅ GST CALCULATION
   let subtotal = 0;
   let totalGST = 0;
 
-  const itemsWithGST = cartData.map((item) => {
-    const price = item.productId?.price || 0;
-    const qty = item.quantity || 0;
-    const gst = item.productId?.gst || 0;
+  if (cartItems) {
+    cartItems.forEach((item) => {
+      const price = item.productId.price;
+      const qty = item.quantity;
+      const gst = item.productId.gst || 0;
+
+      const base = price * qty;
+      const gstAmount = (base * gst) / 100;
+
+      subtotal += base;
+      totalGST += gstAmount;
+    });
+  } else if (product) {
+    const price = product.price;
+    const qty = product.quantity || 1;
+    const gst = product.gst || 0;
 
     const base = price * qty;
     const gstAmount = (base * gst) / 100;
 
     subtotal += base;
     totalGST += gstAmount;
+  }
 
-    return {
-      productId: item.productId._id,
-      quantity: qty,
-      price,
-      gst,
-      gstAmount,
-    };
-  });
+  const totalPrice = Number((subtotal + totalGST).toFixed(2));
 
-  const totalAmount = subtotal + totalGST;
-
-  // Razorpay loader
+  // LOAD RAZORPAY
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -292,175 +58,191 @@ function Payment() {
     });
   };
 
- const orderPlace = async () => {
-  if (!paymentMethod) {
-    alert("Select payment method");
-    return;
-  }
 
-  const fullAddress = `${formData?.address || ""}, ${formData?.city || ""}, ${formData?.state || ""} - ${formData?.pincode || ""}`;
-
-  // ✅ COD
-  if (paymentMethod === "COD") {
-    try {
-  const res = await axios.post(
-    "https://my-react-app-backend-4517.onrender.com/orders",
-    {
-      userId: user._id,
-      address: fullAddress,
-      paymentMethod: "COD",
-      items: cartData.map(item => ({
-        productId: item.productId._id,
-        quantity: item.quantity
-      }))
+  const orderPlace = async () => {
+    if (!user) {
+      alert("Please login first");
+      navigate("/login");
+      return;
     }
-  );
 
-  console.log("COD RESPONSE:", res.data);
+    if (!paymentMethod) {
+      alert("Select payment method");
+      return;
+    }
 
-  // ✅ ONLY SUCCESS
-  alert("Order placed successfully (COD) ");
-  navigate("/productview");
+    const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
 
-} catch (err) {
-  console.log("FULL ERROR:", err);
 
-  // 🔍 DEBUG
-  if (err.response) {
-    console.log("ERROR RESPONSE:", err.response.data);
-  }
+    if (paymentMethod === "COD") {
+      try {
+        await axios.post("http://localhost:3001/orders", {
+          userId: user._id,
+          address: fullAddress,
+          phone: formData?.phone,
+          paymentMethod: "COD",
 
-  alert("COD failed ");
-}
+          items: cartItems
+            ? cartItems.map((item) => ({
+              productId: item.productId._id,
+              quantity: item.quantity,
+            }))
+            : [
+              {
+                productId: product._id,
+                quantity: product.quantity || 1,
+              },
+            ],
+        });
 
-    return;
-  }
+        alert("Order placed successfully (COD)");
 
-  // ✅ ONLINE PAYMENT
-  const res = await loadRazorpay();
+        navigate("/orders");
+      } catch (err) {
+        console.log(err);
+        alert("COD failed");
+      }
+      return;
+    }
 
-  if (!res) {
-    alert("Razorpay failed");
-    return;
-  }
 
-  try {
-    const response = await axios.post(
-      "https://my-react-app-backend-4517.onrender.com/create-order",
-      { amount: totalAmount }
-    );
+    const res = await loadRazorpay();
 
-    const order = response.data;
+    if (!res) {
+      alert("Razorpay failed to load");
+      return;
+    }
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: "INR",
-      name: "My Store",
-      order_id: order.id,
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/create-order",
+        { amount: totalPrice }
+      );
 
-      handler: async function (razorpayResponse) {
-        try {
-          console.log("RAZORPAY SUCCESS:", razorpayResponse);
+      const order = response.data;
 
-          const verify = await axios.post(
-            "https://my-react-app-backend-4517.onrender.com/verify-payment",
-            {
-              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-              razorpay_order_id: razorpayResponse.razorpay_order_id,
-              razorpay_signature: razorpayResponse.razorpay_signature,
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: "INR",
+        name: "My Store",
+        description: "Order Payment",
+        order_id: order.id,
 
-              // ✅ IMPORTANT FIX
-              cartData: cartData,
+        handler: async function (razorpayResponse) {
+          const data = {
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
 
-              userId: user._id,
-              userName: user.name,
-              address: fullAddress
+            cartData: cartItems || [
+              {
+                productId: product,
+                quantity: product.quantity || 1,
+              },
+            ],
+
+            userId: user._id,
+            userName: user.name || user.firstname,
+            address: fullAddress,
+          };
+
+          try {
+            const res = await axios.post(
+              "http://localhost:3001/verify-payment",
+              data
+            );
+
+            if (res.data.success) {
+              alert("Payment Verified & Order Placed ");
+
+              navigate("/orders");
+            } else {
+              alert("Payment verification failed");
             }
-          );
-
-          console.log("VERIFY RESPONSE:", verify.data);
-
-          if (verify.data.success) {
-            alert("Payment Verified & Order Placed ");
-            navigate("/productview");
-          } else {
-            alert("Verification failed ");
+          } catch (err) {
+            console.log(err);
+            alert("Verification error");
           }
+        },
 
-        } catch (err) {
-          console.log("VERIFY ERROR:", err);
-          alert("Payment done but verification failed ");
-        }
-      },
+        modal: {
+          ondismiss: function () {
+            alert("Payment cancelled");
+          },
+        },
 
-      modal: {
-        ondismiss: function () {
-          alert("Payment cancelled");
-        }
-      },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: formData?.phone,
+        },
 
-      theme: {
-        color: "#ff0000",
-      },
-    };
+        theme: {
+          color: "#ff0000",
+        },
+      };
 
-    new window.Razorpay(options).open();
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.log("Payment Error:", err);
+    }
+  };
 
-  } catch (err) {
-    console.log("PAYMENT ERROR:", err);
-    alert("Payment failed ");
-  }
-};
   return (
     <div className="payment-container">
       <h2>Payment</h2>
 
       <div className="payment-box">
 
-        {/* LEFT */}
+
         <div className="left">
           <h3>Order Summary</h3>
 
-          {cartData.length === 0 ? (
-            <p>No items found</p>
-          ) : (
-            cartData.map((item) => {
+          {cartItems
+            ? cartItems.map((item) => {
               const base = item.productId.price * item.quantity;
-              const gstAmount =
-                (base * (item.productId.gst || 0)) / 100;
+              const gst = item.productId.gst || 0;
+              const gstAmount = (base * gst) / 100;
+              const final = base + gstAmount;
 
               return (
                 <div key={item._id} className="item">
-                  <img
-                    src={item.productId.imageUpload}
-                    alt=""
-                  />
+                  <img src={item.productId.imageUpload} alt="" />
                   <div>
                     <p>{item.productId.title}</p>
                     <p>Qty: {item.quantity}</p>
                     <p>GST: ₹{gstAmount.toFixed(2)}</p>
                   </div>
-                  <span>₹{(base + gstAmount).toFixed(2)}</span>
+                  <span>₹{final.toFixed(2)}</span>
                 </div>
               );
             })
-          )}
+            : product && (
+              <div className="item">
+                <img src={product.imageUpload} alt="" />
+                <div>
+                  <p>{product.title}</p>
+                  <p>Qty: {product.quantity || 1}</p>
+                </div>
+                <span>₹{totalPrice}</span>
+              </div>
+            )}
 
-          <h3>Subtotal: ₹{subtotal.toFixed(2)}</h3>
-          <h3>GST: ₹{totalGST.toFixed(2)}</h3>
-          <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
+          <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
+          <p>GST: ₹{totalGST.toFixed(2)}</p>
+          <h3>Total: ₹{totalPrice}</h3>
         </div>
 
-        {/* RIGHT */}
+
         <div className="right">
           <h3>Delivery Details</h3>
 
           <div className="address">
-            <strong>{formData?.name || user?.name}</strong>
-            <p>
-              {formData?.address}, {formData?.city}, {formData?.state}
-            </p>
+            <strong>{formData?.name}</strong>
+            <p>{formData?.address}, {formData?.city}</p>
+            <p>{formData?.state} - {formData?.pincode}</p>
             <p>{formData?.phone}</p>
           </div>
 
@@ -477,7 +259,7 @@ function Payment() {
             className={`method ${paymentMethod === "ONLINE" ? "active" : ""}`}
             onClick={() => setPaymentMethod("ONLINE")}
           >
-            Pay Online
+            Pay Online (UPI / Card)
           </div>
 
           <button className="pay-btn" onClick={orderPlace}>

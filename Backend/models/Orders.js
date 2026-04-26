@@ -1,12 +1,6 @@
-
 // const mongoose = require("mongoose");
 
 // const orderSchema = new mongoose.Schema({
-//   productId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: "products",
-//     required: true,
-//   },
 
 //   userId: {
 //     type: mongoose.Schema.Types.ObjectId,
@@ -18,11 +12,23 @@
 //     type: String,
 //   },
 
-//   quantity: {
-//     type: Number,
-//     required: true,
-//     default: 1,
-//   },
+//   items: [
+//   {
+//     productId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "products",
+//     },
+//     title: String,
+//     image: String,
+//     quantity: {
+//       type: Number,
+//       default: 1,
+//     },
+//     price: Number,
+//     gst: Number,
+//     gstAmount: Number
+//   }
+// ],
 
 //   totalPrice: {
 //     type: Number,
@@ -40,11 +46,12 @@
 //     type: String,
 //     enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
 //     default: "Pending",
-//   },
+//   }
 
-//   }, { timestamps: true });  
+// }, { timestamps: true });
 
 // module.exports = mongoose.model("orders", orderSchema);
+
 
 
 const mongoose = require("mongoose");
@@ -57,10 +64,13 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
 
-  userName: {
-    type: String,
-  },
+  userName: String,
 
+  address: String,
+
+  paymentMethod: String,
+
+  paymentId: String,
 
   items: [
     {
@@ -68,26 +78,28 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "products",
       },
+      title: String,
+      image: String,
+
       quantity: {
         type: Number,
         default: 1,
       },
-      price: {
-        type: Number,
-      }
+
+      price: Number,
+
+      gst: Number,      
+      gstAmount: Number,  
+
+      total: Number       
     }
   ],
 
+  subtotal: Number,      
+  totalGST: Number,      
   totalPrice: {
     type: Number,
-    required: true,
-  },
-
-  address: String,
-  paymentMethod: String,
-
-  paymentId: {  
-    type: String,
+    required: true,      
   },
 
   status: {

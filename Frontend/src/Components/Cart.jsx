@@ -10,20 +10,20 @@ function Cart() {
     fetchCart();
   }, []);
 
-const fetchCart = async () => {
-  try {
-    const user = JSON.parse(localStorage.getItem("user")); 
+  const fetchCart = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-    const res = await fetch(
-      `https://my-react-app-backend-4517.onrender.com/cart/${user._id}`   
-    );
+      const res = await fetch(
+        `https://my-react-app-backend-4517.onrender.com/cart/${user._id}`
+      );
 
-    const data = await res.json();
-    setCartData(data);
-  } catch (err) {
-    console.error(err);
-  }
-};
+      const data = await res.json();
+      setCartData(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const increaseQty = async (id, quantity) => {
     await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
@@ -64,19 +64,16 @@ const fetchCart = async () => {
 
   return (
     <div className="cart-section">
-      <br></br><br></br>
+      <br /><br />
       <h1>Your Cart</h1>
 
       {cartData.length === 0 ? (
         <p>Cart is empty</p>
       ) : (
         <>
-          <br></br>
           <div className="cart-container">
             {cartData.map((item) => (
               <div key={item._id} className="cart-item">
-
-                
 
                 {item.productId ? (
                   <>
@@ -121,14 +118,15 @@ const fetchCart = async () => {
       <button className="back-btn" onClick={() => navigate("/productview")}>
         Back to Products
       </button>
-      <button onClick={() => navigate("/checkout")} className="checkout-btn">
+
+      <button
+        onClick={() => navigate("/checkout", { state: cartData })}
+        className="checkout-btn"
+      >
         Proceed to Checkout
       </button>
     </div>
-
-
   );
 }
 
 export default Cart;
-

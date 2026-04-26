@@ -7,6 +7,7 @@ const multer = require("multer")
 const CartModel = require("./models/Cart");
 const OrderModel = require("./models/Orders");
 const nodemailer = require("nodemailer");
+const generateInvoice = require("./utils/generateInvoice");
 
 require("./models/Products");
 require("dotenv").config();
@@ -31,16 +32,11 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-
 const app = express()
 app.use(express.json())
-// app.use("/uploads", express.static("uploads"));
-
 
 app.use(cors())
 mongose.connect(process.env.MONGO_URI);
-
-
 
 
 app.post('/login', (req, res) => {
@@ -117,14 +113,7 @@ app.delete("/products/:id", async (req, res) => {
     }
 
 
-    // const imagePath = path.join(__dirname, "uploads", product.imageUpload);
-
-
-    // fs.unlink(imagePath, (err) => {
-    //   if (err) {
-    //     console.log("Image not found or already deleted");
-    //   }
-    // });
+    
 
 
     await ProductModel.findByIdAndDelete(req.params.id);
@@ -266,74 +255,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// app.post("/orders", async (req, res) => {
-//   try {
-//     console.log("ORDER DATA:", req.body);
-
-//     const user = await UserModel.findById(req.body.userId);
-
-//     if (!user) {
-//       return res.status(400).json({ error: "User not found" });
-//     }
-
-//     let total = 0;
-//     const items = [];
-
-
-//     for (let item of req.body.items) {
-//       const product = await ProductModel.findById(item.productId);
-
-//       if (!product) continue;
-
-//       items.push({
-//         productId: product._id,
-//         quantity: item.quantity,
-//         price: product.price
-//       });
-
-//       total += product.price * item.quantity;
-//     }
-
-
-//     const order = await OrderModel.create({
-//       userId: req.body.userId,
-//       userName: user.name || user.firstname,
-//       address: req.body.address,
-//       paymentMethod: req.body.paymentMethod,
-//       status: "Pending",
-//       paymentId: req.body.paymentId,
-
-//       items: items,
-//       totalPrice: total
-//     });
-
-
-//     await CartModel.deleteMany({ userId: req.body.userId });
-
-
-//     transporter.sendMail({
-//       from: process.env.EMAIL_USER,
-//       to: user.email,
-//       subject: "From HRX- Order Confirmation",
-//       html: `
-//         <h2>Order Placed Successfully</h2>
-//         <p>Hello ${user.name || user.firstname},</p>
-//         <p>Your order has been placed successfully.</p>
-//         <p><strong>Order ID:</strong> ${order._id}</p>
-//         <p><strong>Total:</strong> ₹${order.totalPrice}</p>
-//         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-//         <p>Thank you for shopping with us!</p>
-//       `
-//     });
-
-
-//     res.json(order);
-
-//   } catch (err) {
-//     console.error("ORDER ERROR:", err);
-//     res.status(500).json(err);
-//   }
-// });
 
 
 app.post("/orders", async (req, res) => {
@@ -349,22 +270,28 @@ app.post("/orders", async (req, res) => {
     let total = 0;
     const items = [];
 
-    // ✅ Prepare order items
     for (let item of req.body.items) {
       const product = await ProductModel.findById(item.productId);
 
       if (!product) continue;
 
+      const base = product.price * item.quantity;
+      const gst = product.gst || 0;
+      const gstAmount = (base * gst) / 100;
+
       items.push({
         productId: product._id,
+        title: product.title,
+        image: product.imageUpload,
         quantity: item.quantity,
-        price: product.price
+        price: product.price,
+        gst: gst,
+        gstAmount: gstAmount
       });
 
-      total += product.price * item.quantity;
+      total += base + gstAmount;
     }
 
-    // ✅ Create order
     const order = await OrderModel.create({
       userId: req.body.userId,
       userName: user.name || user.firstname,
@@ -376,21 +303,17 @@ app.post("/orders", async (req, res) => {
       totalPrice: total
     });
 
-    // ✅ Generate invoice file path
     const invoicePath = path.join(
       __dirname,
       `invoice_${order._id}.pdf`
     );
 
-    // ✅ Generate invoice
     await generateInvoice(order, invoicePath);
 
     console.log("Invoice generated at:", invoicePath);
 
-    // ✅ Clear cart
     await CartModel.deleteMany({ userId: req.body.userId });
 
-    // ✅ Send email with attachment
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
@@ -419,7 +342,6 @@ app.post("/orders", async (req, res) => {
 
     console.log("Email sent with invoice");
 
-    // ✅ Delete invoice after sending
     if (fs.existsSync(invoicePath)) {
       fs.unlinkSync(invoicePath);
       console.log("Invoice deleted after sending");
@@ -609,7 +531,6 @@ app.post("/verify-payment", async (req, res) => {
       .update(body.toString())
       .digest("hex");
 
-
     if (expectedSignature === razorpay_signature) {
 
       const newOrder = await OrderModel.create({
@@ -620,41 +541,73 @@ app.post("/verify-payment", async (req, res) => {
         paymentId: razorpay_payment_id,
         status: "Pending",
 
-        items: cartData.map(item => ({
-          productId: item.productId._id,
-          quantity: item.quantity,
-          price: item.productId.price
-        })),
+        items: cartData.map(item => {
+          const base = item.productId.price * item.quantity;
+          const gst = item.productId.gst || 0;
+          const gstAmount = (base * gst) / 100;
 
-        totalPrice: cartData.reduce(
-          (sum, item) => sum + item.productId.price * item.quantity,
-          0
-        )
+          return {
+            productId: item.productId._id,
+            title: item.productId.title,
+            image: item.productId.imageUpload,
+            quantity: item.quantity,
+            price: item.productId.price,
+            gst: gst,
+            gstAmount: gstAmount
+          };
+        }),
+
+        totalPrice: cartData.reduce((sum, item) => {
+          const base = item.productId.price * item.quantity;
+          const gst = item.productId.gst || 0;
+          const gstAmount = (base * gst) / 100;
+          return sum + base + gstAmount;
+        }, 0)
       });
 
-     
-      const user = await UserModel.findById(userId);
+   
+      const invoicePath = path.join(
+        __dirname,
+        `invoice_${newOrder._id}.pdf`
+      );
+
+      await generateInvoice(newOrder, invoicePath);
+
+      console.log("Invoice generated at:", invoicePath);
 
       
+      const user = await UserModel.findById(userId);
+
       if (user && user.email) {
-        transporter.sendMail({
+        await transporter.sendMail({
           from: process.env.EMAIL_USER,
           to: user.email,
           subject: "From HRX- Payment Successful & Order Confirmed",
           html: `
-        <h2>Payment Successful & Order Confirmed</h2>
-        <p>Hello ${user.name || userName},</p>
-        <p>Your payment was successful and your order has been placed.</p>
-        <p><strong>Order ID:</strong> ${newOrder._id}</p>
-        <p><strong>Total:</strong> ₹${newOrder.totalPrice}</p>
-        <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
-        <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-        <p>Thank you for shopping with us!</p>
-      `
+            <h2>Payment Successful & Order Confirmed</h2>
+            <p>Hello ${user.name || userName},</p>
+            <p>Your payment was successful and your order has been placed.</p>
+            <p><strong>Order ID:</strong> ${newOrder._id}</p>
+            <p><strong>Total:</strong> ₹${newOrder.totalPrice}</p>
+            <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
+            <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
+            <p>Invoice attached.</p>
+          `,
+          attachments: [
+            {
+              filename: `invoice_${newOrder._id}.pdf`,
+              path: invoicePath
+            }
+          ]
         });
       }
 
-    
+      if (fs.existsSync(invoicePath)) {
+        fs.unlinkSync(invoicePath);
+        console.log("Invoice deleted after sending");
+      }
+
+     
       for (let item of cartData) {
         const cartItem = await CartModel.findOne({
           userId,
@@ -682,8 +635,6 @@ app.post("/verify-payment", async (req, res) => {
     return res.status(500).json({ success: false });
   }
 });
-
-
 
 // app.listen(3001, () => {
 //   console.log("server is running")

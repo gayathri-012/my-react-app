@@ -2,6 +2,8 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 
 const generateInvoice = (order, filePath) => {
+
+  console.log("INVOICE ORDER:", order);
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 40 });
     const stream = fs.createWriteStream(filePath);
@@ -19,7 +21,7 @@ const generateInvoice = (order, filePath) => {
       .fontSize(9)
       .fillColor("#000")
       .text("Corporate Office:", 350, 40)
-      .text("FireBoltt Pvt Ltd", 350, 55)
+      .text("Hrx Pvt Ltd", 350, 55)
       .text("Mangalore, Karnataka, India", 350, 70);
     doc.moveTo(40, 100).lineTo(550, 100).stroke();
     doc
@@ -36,7 +38,8 @@ const generateInvoice = (order, filePath) => {
       .text(`Shipping: Standard Delivery`, 300, 140)
       .text(`Estimated: 3-5 Days`, 300, 155)
       .text(`Shipping Cost: Free`, 300, 170)
-      .text(`Phone: ${order.phone}`, 300, 185);
+      .text('Support: support@hrx.com', 300, 185)
+      .text('Customer Helpline: +91-9876543210', 300, 200)
     doc
       .fontSize(11)
       .text("Billed To:", 40, 230)
@@ -53,28 +56,38 @@ const generateInvoice = (order, filePath) => {
       .text("Base", 340, tableTop)
       .text("CGST", 400, tableTop)
       .text("SGST", 460, tableTop)
-      .text("Total", 510, tableTop);
+      .text("Total", 500, tableTop);
 
     doc.moveTo(40, tableTop + 15).lineTo(550, tableTop + 15).stroke();
     let y = tableTop + 25;
     let subtotal = 0;
     let totalTax = 0;
-    order.products.forEach((item) => {
+    order.items.forEach((item) => {
       const base = item.price * item.quantity;
-      const cgst = (base * (item.gst || 18)) / 200;
-      const sgst = cgst;
+      const gstPercent = item.gst || 0;
+      const cgstPercent = gstPercent / 2;
+      const sgstPercent = gstPercent / 2;
+      const cgst = (base * cgstPercent) / 100;
+      const sgst = (base * sgstPercent) / 100;
+
       const total = base + cgst + sgst;
       subtotal += base;
       totalTax += cgst + sgst;
       doc
         .fontSize(9)
-        .text(item.title, 40, y, { width: 200 })
+        .text(item.title || "Product", 40, y, {
+          width: 150,
+          lineBreak: true
+        })
         .text(item.quantity, 250, y)
         .text(item.price.toFixed(2), 290, y)
         .text(base.toFixed(2), 340, y)
-        .text(cgst.toFixed(2), 400, y)
-        .text(sgst.toFixed(2), 460, y)
-        .text(total.toFixed(2), 510, y);
+        .text(`${cgst.toFixed(2)} (${cgstPercent}%)`, 400, y)
+        .text(`${sgst.toFixed(2)} (${sgstPercent}%)`, 460, y)
+        .text(total.toFixed(2), 500, y, {
+          width: 50,
+          align: "right"
+        });
 
       y += 20;
     });
@@ -98,7 +111,7 @@ const generateInvoice = (order, filePath) => {
     doc
       .fontSize(10)
       .text(
-        "Thank you for shopping with FireBoltt!",
+        "Thank you for shopping with Hrx!",
         40,
         summaryY + 120,
         { align: "center" }
@@ -108,5 +121,6 @@ const generateInvoice = (order, filePath) => {
     stream.on("error", reject);
   });
 };
+
 
 module.exports = generateInvoice;

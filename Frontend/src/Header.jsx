@@ -39,10 +39,8 @@ function Header() {
 
 
       <div className="nav-right">
-
         {user ? (
           <div className="user-info">
-
 
             <span
               className="avatar-icon"
@@ -53,9 +51,10 @@ function Header() {
 
             <span className="username">Hi, {user.firstname}</span>
 
-
             {showMenu && (
               <div className="dropdown">
+
+               
                 {user.role !== "admin" && (
                   <p
                     onClick={() => {
@@ -66,18 +65,29 @@ function Header() {
                     My Orders
                   </p>
                 )}
+
+                
+                {user.role === "admin" && (
+                  <p
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setShowMenu(false);
+                    }}
+                  >
+                    Admin Dashboard
+                  </p>
+                )}
+
                 <p onClick={handleLogout}>Logout</p>
 
               </div>
             )}
-
           </div>
         ) : (
           <button className="login-btn" onClick={() => navigate("/login")}>
             Login
           </button>
         )}
-
       </div>
 
     </nav>
