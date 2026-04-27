@@ -47,7 +47,7 @@ function Payment() {
 
   const totalPrice = Number((subtotal + totalGST).toFixed(2));
 
-  // LOAD RAZORPAY
+  
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");

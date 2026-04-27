@@ -481,8 +481,7 @@ app.get("/search", async (req, res) => {
 });
 
 
-
-
+//razorpay
 const Razorpay = require("razorpay");
 
 const razorpay = new Razorpay({
@@ -508,6 +507,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
+//razorpay verification
 const crypto = require("crypto");
 
 app.post("/verify-payment", async (req, res) => {
@@ -636,9 +636,109 @@ app.post("/verify-payment", async (req, res) => {
   }
 });
 
-// app.listen(3001, () => {
-//   console.log("server is running")
-// })
+
+
+// admin dashboard stats
+app.get("/admin/stats", async (req, res) => {
+  try {
+    const orders = await OrderModel.find().sort({ createdAt: 1 });
+    const users = await UserModel.find().sort({ createdAt: 1 });
+    const products = await ProductModel.find();
+
+    console.log("Products:", products.length); 
+
+    let salesByDate = {};
+    let usersByDate = {};
+
+    let codPayments = 0;
+    let onlinePayments = 0;
+
+    let productMap = {};
+
+    orders.forEach(order => {
+      if (!order.createdAt) return;
+
+      const date = new Date(order.createdAt)
+        .toISOString()
+        .split("T")[0];
+
+      salesByDate[date] =
+        (salesByDate[date] || 0) + (order.totalPrice || 0);
+
+      if (order.paymentMethod === "COD") {
+        codPayments += order.totalPrice || 0;
+      } else {
+        onlinePayments += order.totalPrice || 0;
+      }
+
+      order.items?.forEach(item => {
+        const name = item.title || "Unknown";
+        productMap[name] =
+          (productMap[name] || 0) + (item.quantity || 1);
+      });
+    });
+
+
+    users.forEach(user => {
+      if (!user.createdAt) return;
+
+      const date = new Date(user.createdAt)
+        .toISOString()
+        .split("T")[0];
+
+      usersByDate[date] = (usersByDate[date] || 0) + 1;
+    });
+
+    const fillDates = (data, start) => {
+      let result = {};
+      let current = new Date(start);
+      let today = new Date();
+
+      while (current <= today) {
+        const key = current.toISOString().split("T")[0];
+        result[key] = data[key] || 0;
+        current.setDate(current.getDate() + 1);
+      }
+
+      return result;
+    };
+
+    const startDate = new Date("2026-04-01");
+
+    salesByDate = fillDates(salesByDate, startDate);
+    usersByDate = fillDates(usersByDate, startDate);
+
+    
+    const topProducts = Object.entries(productMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.json({
+      totalOrders: orders.length,
+      totalProducts: products.length,
+      totalUsers: users.length,
+
+      totalPayments: orders.reduce(
+        (sum, o) => sum + (o.totalPrice || 0),
+        0
+      ),
+
+      salesByDate,
+      usersByDate,
+
+      codPayments,
+      onlinePayments,
+      topProducts
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 const PORT = process.env.PORT || 3001;
 
