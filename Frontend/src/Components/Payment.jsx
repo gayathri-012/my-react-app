@@ -76,7 +76,7 @@ function Payment() {
 
     if (paymentMethod === "COD") {
       try {
-        await axios.post("http://localhost:3001/orders", {
+        await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
           userId: user._id,
           address: fullAddress,
           phone: formData?.phone,
@@ -115,7 +115,7 @@ function Payment() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/create-order",
+        "https://my-react-app-backend-4517.onrender.com/create-order",
         { amount: totalPrice }
       );
 
@@ -149,7 +149,7 @@ function Payment() {
 
           try {
             const res = await axios.post(
-              "http://localhost:3001/verify-payment",
+              "https://my-react-app-backend-4517.onrender.com/verify-payment",
               data
             );
 
