@@ -1,46 +1,3 @@
-// import "./Dashboard.css";
-// import { Link } from "react-router-dom";
-
-// function Dashboard() {
-//   return (
-//     <div className="admin-dashboardd">
-
-//       <h1 className="dashboard-titled">Admin Dashboard</h1>
-
-//       <p className="dashboard-subtitled">
-//         Manage products, orders and users from one place
-//       </p>
-
-//       <div className="dashboard-buttonsd">
-
-//         <Link to="/addproduct" className="dash-btnn">
-//           Add Product
-//         </Link>
-
-//         <Link to="/manageproduct" className="dash-btnn">
-//           Manage Products
-//         </Link>
-
-//         <Link to="/manageorder" className="dash-btnn">
-//           Manage Orders
-//         </Link>
-
-//       <Link to="/" className="logout-btn">
-//           Logout
-//         </Link>
-
-
-
-//       </div>
-
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-
-
-
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
@@ -154,9 +111,9 @@ const signupOptions = {
     y: {
       beginAtZero: true,
       min: 0,
-      max: 10,             // ✅ FORCE RANGE
+      max: 10,             
       ticks: {
-        stepSize: 2,       // ✅ 0,2,4,6,8,10
+        stepSize: 2,       
         color: "#fff",
         precision: 0
       }
