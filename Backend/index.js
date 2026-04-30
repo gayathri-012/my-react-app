@@ -451,7 +451,17 @@ app.post("/orders", async (req, res) => {
     });
 
     // ✅ CLEAR CART FIRST
-    await CartModel.deleteMany({ userId: req.body.userId });
+    //await CartModel.deleteMany({ userId: req.body.userId });
+    if (req.body.items.length > 1) {
+  // coming from cart → remove only purchased items
+  for (let item of req.body.items) {
+    await CartModel.deleteOne({
+      userId: req.body.userId,
+      productId: item.productId
+    });
+  }
+}
+
 
     // ✅ SEND RESPONSE IMMEDIATELY (IMPORTANT FIX)
     res.json({ success: true, order });
