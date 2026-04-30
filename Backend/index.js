@@ -6,7 +6,6 @@ const ProductModel = require("./models/Products")
 const multer = require("multer")
 const CartModel = require("./models/Cart");
 const OrderModel = require("./models/Orders");
-// const nodemailer = require("nodemailer");
 const generateInvoice = require("./utils/generateInvoice");
 
 require("dotenv").config();
@@ -43,11 +42,10 @@ const sendOrderEmail = async (order, invoicePath) => {
   };
 
   await sgMail.send(msg);
-  // fs.unlinkSync(invoicePath);
 };
 
 require("./models/Products");
-// require("dotenv").config();
+
 
 const { v2: cloudinary } = require("cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -283,127 +281,6 @@ app.delete("/cart/:id", async (req, res) => {
 });
 
 
-//mail send
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS
-//   }
-// });
-
-
-
-// app.post("/orders", async (req, res) => {
-//   try {
-//     console.log("ORDER DATA:", req.body);
-
-//     const user = await UserModel.findById(req.body.userId);
-
-//     if (!user) {
-//       return res.status(400).json({ error: "User not found" });
-//     }
-
-//     let total = 0;
-//     const items = [];
-
-//     for (let item of req.body.items) {
-//       const product = await ProductModel.findById(item.productId);
-
-//       if (!product) continue;
-
-//       const base = product.price * item.quantity;
-//       const gst = product.gst || 0;
-//       const gstAmount = (base * gst) / 100;
-
-//       items.push({
-//         productId: product._id,
-//         title: product.title,
-//         image: product.imageUpload,
-//         quantity: item.quantity,
-//         price: product.price,
-//         gst: gst,
-//         gstAmount: gstAmount
-//       });
-
-//       total += base + gstAmount;
-//     }
-
-//     const order = await OrderModel.create({
-//       userId: req.body.userId,
-//       userName: user.name || user.firstname,
-//       address: req.body.address,
-//       paymentMethod: req.body.paymentMethod,
-//       status: "Pending",
-//       paymentId: req.body.paymentId,
-//       items: items,
-//       totalPrice: total
-//     });
-
-//     const invoicePath = path.join(
-//       __dirname,
-//       `invoice_${order._id}.pdf`
-//     );
-
-//     await generateInvoice(order, invoicePath);
-
-//     console.log("Invoice generated at:", invoicePath);
-
-//     await CartModel.deleteMany({ userId: req.body.userId });
-
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: user.email,
-//       subject: "From HRX - Order Confirmation with Invoice",
-//       html: `
-//         <h2>Order Placed Successfully</h2>
-//         <p>Hello ${user.name || user.firstname},</p>
-//         <p>Your order has been placed successfully.</p>
-//         <p><strong>Order ID:</strong> ${order._id}</p>
-//         <p><strong>Total:</strong> ₹${order.totalPrice}</p>
-//         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-//         <p><strong>Address:</strong> ${order.address}</p>
-//         <br/>
-//         <p>Invoice is attached with this email.</p>
-//         <p>Thank you for shopping with us!</p>
-//       `,
-//       attachments: [
-//         {
-//           filename: `invoice_${order._id}.pdf`,
-//           path: invoicePath
-//         }
-//       ]
-//     };
-
-//     //await transporter.sendMail(mailOptions);
-//     try {
-//       await sendOrderEmail(
-//         {
-//           ...order.toObject(),
-//           email: user.email
-//         },
-//         invoicePath
-//       );
-//     } catch (err) {
-//       console.log("SendGrid error:", err.message);
-//     }
-
-
-//     console.log("Email sent with invoice");
-
-//     if (fs.existsSync(invoicePath)) {
-//       fs.unlinkSync(invoicePath);
-//       console.log("Invoice deleted after sending");
-//     }
-
-//     //res.json(order);
-//     res.json({ success: true, order });
-
-//   } catch (err) {
-//     console.error("ORDER ERROR:", err);
-//     res.status(500).json(err);
-//   }
-// });
 app.post("/orders", async (req, res) => {
   try {
     console.log("ORDER DATA:", req.body);
@@ -450,11 +327,9 @@ app.post("/orders", async (req, res) => {
       totalPrice: total
     });
 
-    // ✅ CLEAR CART FIRST
-    //await CartModel.deleteMany({ userId: req.body.userId });
+    //  CLEAR CART FIRST
     if (req.body.isFromCart) 
       {
-  // coming from cart → remove only purchased items
   for (let item of req.body.items) {
     await CartModel.deleteOne({
       userId: req.body.userId,
@@ -464,10 +339,10 @@ app.post("/orders", async (req, res) => {
 }
 
 
-    // ✅ SEND RESPONSE IMMEDIATELY (IMPORTANT FIX)
+   
     res.json({ success: true, order });
 
-    // 🔥 BACKGROUND TASK (invoice + email)
+    
     (async () => {
       try {
         const invoicePath = path.join(
@@ -579,12 +454,6 @@ app.put("/orders/:id", async (req, res) => {
       const user = await UserModel.findById(updated.userId);
 
       if (user?.email) {
-        // transporter.sendMail({
-        //   from: process.env.EMAIL_USER,
-        //   to: user.email,
-        //   subject: subject,
-        //   html: message,
-        // });
         try {
           await sgMail.send({
             to: user.email,
@@ -681,286 +550,6 @@ app.post("/create-order", async (req, res) => {
 //razorpay verification
 const crypto = require("crypto");
 
-// app.post("/verify-payment", async (req, res) => {
-//   try {
-//     const {
-//       razorpay_order_id,
-//       razorpay_payment_id,
-//       razorpay_signature,
-//       cartData,
-//       userId,
-//       userName,
-//       address
-//     } = req.body;
-
-//     const secret = process.env.RAZORPAY_KEY_SECRET;
-
-//     const body = razorpay_order_id + "|" + razorpay_payment_id;
-
-//     const expectedSignature = crypto
-//       .createHmac("sha256", secret)
-//       .update(body.toString())
-//       .digest("hex");
-
-//     if (expectedSignature === razorpay_signature) {
-
-//       const newOrder = await OrderModel.create({
-//         userId,
-//         userName,
-//         address,
-//         paymentMethod: "ONLINE",
-//         paymentId: razorpay_payment_id,
-//         status: "Pending",
-
-//         items: cartData.map(item => {
-//           const base = item.productId.price * item.quantity;
-//           const gst = item.productId.gst || 0;
-//           const gstAmount = (base * gst) / 100;
-
-//           return {
-//             productId: item.productId._id,
-//             title: item.productId.title,
-//             image: item.productId.imageUpload,
-//             quantity: item.quantity,
-//             price: item.productId.price,
-//             gst: gst,
-//             gstAmount: gstAmount
-//           };
-//         }),
-
-//         totalPrice: cartData.reduce((sum, item) => {
-//           const base = item.productId.price * item.quantity;
-//           const gst = item.productId.gst || 0;
-//           const gstAmount = (base * gst) / 100;
-//           return sum + base + gstAmount;
-//         }, 0)
-//       });
-
-
-//       const invoicePath = path.join(
-//         __dirname,
-//         `invoice_${newOrder._id}.pdf`
-//       );
-
-//       await generateInvoice(newOrder, invoicePath);
-
-//       console.log("Invoice generated at:", invoicePath);
-
-
-//       const user = await UserModel.findById(userId);
-
-//       if (user && user.email) {
-//         await transporter.sendMail({
-//           from: process.env.EMAIL_USER,
-//           to: user.email,
-//           subject: "From HRX- Payment Successful & Order Confirmed",
-//           html: `
-//             <h2>Payment Successful & Order Confirmed</h2>
-//             <p>Hello ${user.name || userName},</p>
-//             <p>Your payment was successful and your order has been placed.</p>
-//             <p><strong>Order ID:</strong> ${newOrder._id}</p>
-//             <p><strong>Total:</strong> ₹${newOrder.totalPrice}</p>
-//             <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
-//             <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-//             <p>Invoice attached.</p>
-//           `,
-//           attachments: [
-//             {
-//               filename: `invoice_${newOrder._id}.pdf`,
-//               path: invoicePath
-//             }
-//           ]
-//         });
-//       }
-
-//       if (fs.existsSync(invoicePath)) {
-//         fs.unlinkSync(invoicePath);
-//         console.log("Invoice deleted after sending");
-//       }
-
-
-//       for (let item of cartData) {
-//         const cartItem = await CartModel.findOne({
-//           userId,
-//           productId: item.productId._id
-//         });
-
-//         if (cartItem) {
-//           if (cartItem.quantity > item.quantity) {
-//             cartItem.quantity -= item.quantity;
-//             await cartItem.save();
-//           } else {
-//             await CartModel.deleteOne({ _id: cartItem._id });
-//           }
-//         }
-//       }
-
-//       return res.json({ success: true, order: newOrder });
-
-//     } else {
-//       return res.json({ success: false });
-//     }
-
-//   } catch (err) {
-//     console.log("VERIFY PAYMENT ERROR:", err);
-//     return res.status(500).json({ success: false });
-//   }
-// });
-
-// app.post("/verify-payment", async (req, res) => {
-//   try {
-//     const {
-//       razorpay_order_id,
-//       razorpay_payment_id,
-//       razorpay_signature,
-//       cartData,
-//       userId,
-//       userName,
-//       address
-//     } = req.body;
-
-//     // ✅ validation
-//     if (!cartData || !Array.isArray(cartData)) {
-//       return res.status(400).json({ success: false });
-//     }
-
-//     const secret = process.env.RAZORPAY_KEY_SECRET;
-
-//     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-
-//     const expectedSignature = crypto
-//       .createHmac("sha256", secret.trim())
-//       .update(body)
-//       .digest("hex");
-
-//     if (expectedSignature !== razorpay_signature) {
-//       return res.json({ success: false });
-//     }
-
-//     // ✅ BUILD ITEMS (IMPORTANT FIX)
-//     let items = [];
-//     let totalPrice = 0;
-
-//     for (let item of cartData) {
-//       const productId = item.productId?._id || item.productId;
-
-//       const product = await ProductModel.findById(productId);
-//       if (!product) continue;
-
-//       const qty = item.quantity || 1;
-//       const base = product.price * qty;
-//       const gst = product.gst || 0;
-//       const gstAmount = (base * gst) / 100;
-
-//       items.push({
-//         productId: product._id,
-//         title: product.title,
-//         image: product.imageUpload,
-//         quantity: qty,
-//         price: product.price,
-//         gst,
-//         gstAmount
-//       });
-
-//       totalPrice += base + gstAmount;
-//     }
-
-//     if (items.length === 0) {
-//       return res.status(400).json({ success: false });
-//     }
-
-//     // ✅ CREATE ORDER
-//     const newOrder = await OrderModel.create({
-//       userId,
-//       userName,
-//       address,
-//       paymentMethod: "ONLINE",
-//       paymentId: razorpay_payment_id,
-//       status: "Pending",
-//       items,
-//       totalPrice
-//     });
-
-//     console.log("✅ ORDER CREATED:", newOrder._id);
-
-//     // ✅ SEND RESPONSE FIRST
-//     res.json({ success: true, order: newOrder });
-
-//     // 🔥 BACKGROUND EMAIL + INVOICE
-//     (async () => {
-//       try {
-//         const invoicePath = path.join(
-//           __dirname,
-//           `invoice_${newOrder._id}.pdf`
-//         );
-
-//         await generateInvoice(newOrder, invoicePath);
-
-//         const user = await UserModel.findById(userId);
-
-//         if (user?.email) {
-//           // await transporter.sendMail({
-//           //   from: process.env.EMAIL_USER,
-//           //   to: user.email,
-//           //   subject: "Payment Successful",
-//           //   html: `
-//           //     <h2>Payment Successful</h2>
-//           //     <p>Order ID: ${newOrder._id}</p>
-//           //     <p>Total: ₹${newOrder.totalPrice}</p>
-//           //   `,
-//           //   attachments: [
-//           //     {
-//           //       filename: `invoice_${newOrder._id}.pdf`,
-//           //       path: invoicePath
-//           //     }
-//           //   ]
-//           // });
-//           const user = await UserModel.findById(userId);
-
-//           if (user?.email) {
-//             try {
-//               //   await sendOrderEmail(
-//               //     {
-//               //       ...newOrder.toObject(),
-//               //       email: user.email
-//               //     },
-//               //     invoicePath
-//               //   );
-//               // } catch (err) {
-//               //   console.log("SendGrid error:", err.message);
-//               // }
-//               sendOrderEmail(
-//                 {
-//                   ...newOrder.toObject(),
-//                   email: user.email
-//                 },
-//                 invoicePath
-//               ).catch(err => console.log("SendGrid error:", err.message));
-//             }
-
-
-//           if (fs.existsSync(invoicePath)) {
-//             fs.unlinkSync(invoicePath);
-//           }
-
-//         } catch (e) {
-//           console.log("Email error:", e.message);
-//         }
-//       })();
-
-//     // ✅ CLEAR CART
-//     for (let item of cartData) {
-//       const productId = item.productId?._id || item.productId;
-//       await CartModel.deleteOne({ userId, productId });
-//     }
-
-//   } catch (err) {
-//     console.log("VERIFY PAYMENT ERROR:", err);
-//     res.status(500).json({ success: false });
-//   }
-// });
-
-
 app.post("/verify-payment", async (req, res) => {
   try {
     const {
@@ -973,7 +562,7 @@ app.post("/verify-payment", async (req, res) => {
       address
     } = req.body;
 
-    // ✅ validation
+    // validation
     if (!cartData || !Array.isArray(cartData)) {
       return res.status(400).json({ success: false });
     }
@@ -991,7 +580,7 @@ app.post("/verify-payment", async (req, res) => {
       return res.json({ success: false });
     }
 
-    // ✅ BUILD ITEMS
+   
     let items = [];
     let totalPrice = 0;
 
@@ -1023,7 +612,7 @@ app.post("/verify-payment", async (req, res) => {
       return res.status(400).json({ success: false });
     }
 
-    // ✅ CREATE ORDER
+    
     const newOrder = await OrderModel.create({
       userId,
       userName,
@@ -1037,10 +626,10 @@ app.post("/verify-payment", async (req, res) => {
 
     console.log("✅ ORDER CREATED:", newOrder._id);
 
-    // ✅ SEND RESPONSE FIRST (IMPORTANT)
+  
     res.json({ success: true, order: newOrder });
 
-    // 🔥 BACKGROUND TASK (invoice + email)
+    
     (async () => {
       try {
         const invoicePath = path.join(
@@ -1055,7 +644,7 @@ app.post("/verify-payment", async (req, res) => {
         if (user?.email) {
           sendOrderEmail(
             {
-              ...newOrder.toObject(), // ✅ FIXED HERE
+              ...newOrder.toObject(), 
               email: user.email
             },
             invoicePath
@@ -1073,11 +662,7 @@ app.post("/verify-payment", async (req, res) => {
       }
     })();
 
-    // ✅ CLEAR CART
-    // for (let item of cartData) {
-    //   const productId = item.productId?._id || item.productId;
-    //   await CartModel.deleteOne({ userId, productId });
-    // }
+   
     if (req.body.isFromCart) {
   for (let item of cartData) {
     const productId = item.productId?._id || item.productId;
@@ -1199,6 +784,7 @@ app.get("/admin/stats", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 

@@ -23,9 +23,6 @@ function Payment() {
 
   if (cartItems) {
     cartItems.forEach((item) => {
-      // const price = item.productId.price;
-      // const qty = item.quantity;
-      // const gst = item.productId.gst || 0;
       const price = item.productId?.price || 0;
       const qty = item.quantity || 1;
       const gst = item.productId?.gst || 0;
@@ -37,20 +34,7 @@ function Payment() {
       totalGST += gstAmount;
     });
   }
-  //else if (product) {
-  //     // const price = product.price;
-  //     // const qty = product.quantity || 1;
-  //     // const gst = product.gst || 0;
-  //     const price = item.productId?.price || 0;
-  // const qty = item.quantity || 1;
-  // const gst = item.productId?.gst || 0;
-
-  //     const base = price * qty;
-  //     const gstAmount = (base * gst) / 100;
-
-  //     subtotal += base;
-  //     totalGST += gstAmount;
-  //   }
+  
 
   else if (product) {
     const price = product.price || 0;
@@ -92,37 +76,6 @@ function Payment() {
 
     const fullAddress = `${formData?.address}, ${formData?.city}, ${formData?.state} - ${formData?.pincode}`;
 
-
-    // if (paymentMethod === "COD") {
-    //   try {
-    //     await axios.post("https://my-react-app-backend-4517.onrender.com/orders", {
-    //       userId: user._id,
-    //       address: fullAddress,
-    //       phone: formData?.phone,
-    //       paymentMethod: "COD",
-
-    //       items: cartItems
-    //         ? cartItems.map((item) => ({
-    //           productId: item.productId._id,
-    //           quantity: item.quantity,
-    //         }))
-    //         : [
-    //           {
-    //             productId: product._id,
-    //             quantity: product.quantity || 1,
-    //           },
-    //         ],
-    //     });
-
-    //     alert("Order placed successfully (COD)");
-
-    //     navigate("/orders");
-    //   } catch (err) {
-    //     console.log(err);
-    //     alert("COD failed");
-    //   }
-    //   return;
-    // }
     if (paymentMethod === "COD") {
       try {
         const itemsData = cartItems
@@ -144,15 +97,6 @@ function Payment() {
           return;
         }
 
-        // const res = await axios.post(
-        //   "https://my-react-app-backend-4517.onrender.com/orders",
-        //   {
-        //     userId: user?._id,
-        //     address: fullAddress,
-        //     paymentMethod: "COD",
-        //     items: itemsData,
-        //   }
-        // );
         const res = await axios.post(
           "https://my-react-app-backend-4517.onrender.com/orders",
           {
@@ -207,12 +151,7 @@ function Payment() {
             razorpay_order_id: razorpayResponse.razorpay_order_id,
             razorpay_signature: razorpayResponse.razorpay_signature,
 
-            // cartData: cartItems || [
-            //   {
-            //     productId: product,
-            //     quantity: product.quantity || 1,
-            //   },
-            // ],
+           
             cartData: cartItems
               ? cartItems.map(item => ({
                 productId: item.productId?._id || item.productId,
@@ -284,35 +223,6 @@ function Payment() {
         <div className="left">
           <h3>Order Summary</h3>
 
-          {/* {cartItems
-            ? cartItems.map((item) => {
-              const base = item.productId.price * item.quantity;
-              const gst = item.productId.gst || 0;
-              const gstAmount = (base * gst) / 100;
-              const final = base + gstAmount;
-
-              return (
-                <div key={item._id} className="item">
-                  <img src={item.productId.imageUpload} alt="" />
-                  <div>
-                    <p>{item.productId.title}</p>
-                    <p>Qty: {item.quantity}</p>
-                    <p>GST: ₹{gstAmount.toFixed(2)}</p>
-                  </div>
-                  <span>₹{final.toFixed(2)}</span>
-                </div>
-              );
-            })
-            : product && (
-              <div className="item">
-                <img src={product.imageUpload} alt="" />
-                <div>
-                  <p>{product.title}</p>
-                  <p>Qty: {product.quantity || 1}</p>
-                </div>
-                <span>₹{totalPrice}</span>
-              </div>
-            )} */}
 
           {cartItems
             ? cartItems.map((item) => {
@@ -323,7 +233,7 @@ function Payment() {
               const final = base + gstAmount;
 
               return (
-                // <div key={item._id} className="item">
+               
                 <div key={item._id || item.productId?._id} className="item">
                   <img src={item.productId?.imageUpload} alt="" />
                   <div>
