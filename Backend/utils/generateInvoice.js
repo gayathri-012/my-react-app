@@ -80,17 +80,24 @@ const generateInvoice = (order, filePath) => {
           lineBreak: true
         })
         .text(item.quantity, 250, y)
-        .text(item.price.toFixed(2), 290, y)
-        .text(base.toFixed(2), 340, y)
-        .text(`${cgst.toFixed(2)} (${cgstPercent}%)`, 400, y)
-        .text(`${sgst.toFixed(2)} (${sgstPercent}%)`, 460, y)
-        .text(total.toFixed(2), 500, y, {
-          width: 50,
-          align: "right"
-        });
+        // .text(item.price.toFixed(2), 290, y)
+        // .text(base.toFixed(2), 340, y)
+        // .text(`${cgst.toFixed(2)} (${cgstPercent}%)`, 400, y)
+        // .text(`${sgst.toFixed(2)} (${sgstPercent}%)`, 460, y)
+        // .text(total.toFixed(2), 500, y, {
+        //   width: 50,
+        //   align: "right"
+        // });
 
+        .text((item.price || 0).toFixed(2), 290, y)
+        .text((base || 0).toFixed(2), 340, y)
+        .text((cgst || 0).toFixed(2), 400, y)
+        .text((sgst || 0).toFixed(2), 460, y)
+        .text((total || 0).toFixed(2), 510, y)
       y += 20;
     });
+
+
     const summaryY = y + 20;
     doc
       .fontSize(10)
