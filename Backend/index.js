@@ -1074,10 +1074,17 @@ app.post("/verify-payment", async (req, res) => {
     })();
 
     // ✅ CLEAR CART
-    for (let item of cartData) {
-      const productId = item.productId?._id || item.productId;
-      await CartModel.deleteOne({ userId, productId });
-    }
+    // for (let item of cartData) {
+    //   const productId = item.productId?._id || item.productId;
+    //   await CartModel.deleteOne({ userId, productId });
+    // }
+    if (req.body.isFromCart) {
+  for (let item of cartData) {
+    const productId = item.productId?._id || item.productId;
+    await CartModel.deleteOne({ userId, productId });
+  }
+}
+
 
   } catch (err) {
     console.log("VERIFY PAYMENT ERROR:", err);
