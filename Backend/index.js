@@ -452,7 +452,8 @@ app.post("/orders", async (req, res) => {
 
     // ✅ CLEAR CART FIRST
     //await CartModel.deleteMany({ userId: req.body.userId });
-    if (req.body.items.length > 1) {
+    if (req.body.isFromCart) 
+      {
   // coming from cart → remove only purchased items
   for (let item of req.body.items) {
     await CartModel.deleteOne({

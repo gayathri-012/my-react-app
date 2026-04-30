@@ -27,8 +27,8 @@ function Payment() {
       // const qty = item.quantity;
       // const gst = item.productId.gst || 0;
       const price = item.productId?.price || 0;
-const qty = item.quantity || 1;
-const gst = item.productId?.gst || 0;
+      const qty = item.quantity || 1;
+      const gst = item.productId?.gst || 0;
 
       const base = price * qty;
       const gstAmount = (base * gst) / 100;
@@ -36,33 +36,33 @@ const gst = item.productId?.gst || 0;
       subtotal += base;
       totalGST += gstAmount;
     });
-   } 
-//else if (product) {
-//     // const price = product.price;
-//     // const qty = product.quantity || 1;
-//     // const gst = product.gst || 0;
-//     const price = item.productId?.price || 0;
-// const qty = item.quantity || 1;
-// const gst = item.productId?.gst || 0;
+  }
+  //else if (product) {
+  //     // const price = product.price;
+  //     // const qty = product.quantity || 1;
+  //     // const gst = product.gst || 0;
+  //     const price = item.productId?.price || 0;
+  // const qty = item.quantity || 1;
+  // const gst = item.productId?.gst || 0;
 
-//     const base = price * qty;
-//     const gstAmount = (base * gst) / 100;
+  //     const base = price * qty;
+  //     const gstAmount = (base * gst) / 100;
 
-//     subtotal += base;
-//     totalGST += gstAmount;
-//   }
+  //     subtotal += base;
+  //     totalGST += gstAmount;
+  //   }
 
- else if (product) {
-  const price = product.price || 0;
-  const qty = product.quantity || 1;
-  const gst = product.gst || 0;
+  else if (product) {
+    const price = product.price || 0;
+    const qty = product.quantity || 1;
+    const gst = product.gst || 0;
 
-  const base = price * qty;
-  const gstAmount = (base * gst) / 100;
+    const base = price * qty;
+    const gstAmount = (base * gst) / 100;
 
-  subtotal += base;
-  totalGST += gstAmount;
-}
+    subtotal += base;
+    totalGST += gstAmount;
+  }
 
   const totalPrice = Number((subtotal + totalGST).toFixed(2));
 
@@ -123,50 +123,60 @@ const gst = item.productId?.gst || 0;
     //   }
     //   return;
     // }
-if (paymentMethod === "COD") {
-  try {
-    const itemsData = cartItems
-      ? cartItems
-          .filter(item => item.productId && (item.productId._id || item.productId))
-          .map(item => ({
-            productId: item.productId._id || item.productId,
-            quantity: item.quantity || 1,
-          }))
-      : [
-          {
-            productId: product?._id,
-            quantity: product?.quantity || 1,
-          },
-        ];
+    if (paymentMethod === "COD") {
+      try {
+        const itemsData = cartItems
+          ? cartItems
+            .filter(item => item.productId && (item.productId._id || item.productId))
+            .map(item => ({
+              productId: item.productId._id || item.productId,
+              quantity: item.quantity || 1,
+            }))
+          : [
+            {
+              productId: product?._id,
+              quantity: product?.quantity || 1,
+            },
+          ];
 
-    if (!itemsData.length) {
-      alert("No valid items");
+        if (!itemsData.length) {
+          alert("No valid items");
+          return;
+        }
+
+        // const res = await axios.post(
+        //   "https://my-react-app-backend-4517.onrender.com/orders",
+        //   {
+        //     userId: user?._id,
+        //     address: fullAddress,
+        //     paymentMethod: "COD",
+        //     items: itemsData,
+        //   }
+        // );
+        const res = await axios.post(
+          "https://my-react-app-backend-4517.onrender.com/orders",
+          {
+            userId: user?._id,
+            address: fullAddress,
+            paymentMethod: "COD",
+            items: itemsData,
+            isFromCart: !!cartItems
+          }
+        );
+
+        if (res.data.success) {
+          alert("Order placed successfully (COD)");
+          navigate("/orders");
+        } else {
+          alert("COD failed");
+        }
+
+      } catch (err) {
+        console.log("COD ERROR:", err.response?.data || err);
+        alert(err.response?.data?.error || "COD failed");
+      }
       return;
     }
-
-    const res = await axios.post(
-      "https://my-react-app-backend-4517.onrender.com/orders",
-      {
-        userId: user?._id,
-        address: fullAddress,
-        paymentMethod: "COD",
-        items: itemsData,
-      }
-    );
-
-    if (res.data.success) {
-      alert("Order placed successfully (COD)");
-      navigate("/orders");
-    } else {
-      alert("COD failed");
-    }
-
-  } catch (err) {
-    console.log("COD ERROR:", err.response?.data || err);
-    alert(err.response?.data?.error || "COD failed");
-  }
-  return;
-}
 
     const res = await loadRazorpay();
 
@@ -204,20 +214,21 @@ if (paymentMethod === "COD") {
             //   },
             // ],
             cartData: cartItems
-  ? cartItems.map(item => ({
-      productId: item.productId?._id || item.productId,
-      quantity: item.quantity || 1
-    }))
-  : [
-      {
-        productId: product?._id,
-        quantity: product?.quantity || 1
-      }
-    ],
+              ? cartItems.map(item => ({
+                productId: item.productId?._id || item.productId,
+                quantity: item.quantity || 1
+              }))
+              : [
+                {
+                  productId: product?._id,
+                  quantity: product?.quantity || 1
+                }
+              ],
 
             userId: user._id,
             userName: user.name || user.firstname,
             address: fullAddress,
+            isFromCart: !!cartItems
           };
 
           try {
@@ -303,37 +314,37 @@ if (paymentMethod === "COD") {
               </div>
             )} */}
 
-            {cartItems
-  ? cartItems.map((item) => {
-      const base =
-        (item.productId?.price || 0) * (item.quantity || 1);
-      const gst = item.productId?.gst || 0;
-      const gstAmount = (base * gst) / 100;
-      const final = base + gstAmount;
+          {cartItems
+            ? cartItems.map((item) => {
+              const base =
+                (item.productId?.price || 0) * (item.quantity || 1);
+              const gst = item.productId?.gst || 0;
+              const gstAmount = (base * gst) / 100;
+              const final = base + gstAmount;
 
-      return (
-        // <div key={item._id} className="item">
-        <div key={item._id || item.productId?._id} className="item">
-          <img src={item.productId?.imageUpload} alt="" />
-          <div>
-            <p>{item.productId?.title}</p>
-            <p>Qty: {item.quantity}</p>
-            <p>GST: ₹{gstAmount.toFixed(2)}</p>
-          </div>
-          <span>₹{final.toFixed(2)}</span>
-        </div>
-      );
-    })
-  : product && (
-      <div className="item">
-        <img src={product.imageUpload} alt="" />
-        <div>
-          <p>{product.title}</p>
-          <p>Qty: {product.quantity || 1}</p>
-        </div>
-        <span>₹{totalPrice}</span>
-      </div>
-    )}
+              return (
+                // <div key={item._id} className="item">
+                <div key={item._id || item.productId?._id} className="item">
+                  <img src={item.productId?.imageUpload} alt="" />
+                  <div>
+                    <p>{item.productId?.title}</p>
+                    <p>Qty: {item.quantity}</p>
+                    <p>GST: ₹{gstAmount.toFixed(2)}</p>
+                  </div>
+                  <span>₹{final.toFixed(2)}</span>
+                </div>
+              );
+            })
+            : product && (
+              <div className="item">
+                <img src={product.imageUpload} alt="" />
+                <div>
+                  <p>{product.title}</p>
+                  <p>Qty: {product.quantity || 1}</p>
+                </div>
+                <span>₹{totalPrice}</span>
+              </div>
+            )}
 
 
           <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
