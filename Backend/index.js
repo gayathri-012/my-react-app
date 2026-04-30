@@ -9,6 +9,8 @@ const OrderModel = require("./models/Orders");
 const generateInvoice = require("./utils/generateInvoice");
 
 require("dotenv").config();
+
+//sendgrid email setup
 const sgMail = require("@sendgrid/mail");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -146,9 +148,6 @@ app.delete("/products/:id", async (req, res) => {
     if (!product) {
       return res.json("Product not found");
     }
-
-
-
 
 
     await ProductModel.findByIdAndDelete(req.params.id);
@@ -339,7 +338,6 @@ app.post("/orders", async (req, res) => {
 }
 
 
-   
     res.json({ success: true, order });
 
     
@@ -378,15 +376,6 @@ app.post("/orders", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
-
-
-
-
-
-
-
-
 
 
 
@@ -624,7 +613,7 @@ app.post("/verify-payment", async (req, res) => {
       totalPrice
     });
 
-    console.log("✅ ORDER CREATED:", newOrder._id);
+    console.log("ORDER CREATED:", newOrder._id);
 
   
     res.json({ success: true, order: newOrder });
@@ -681,10 +670,6 @@ app.post("/verify-payment", async (req, res) => {
 
 
 
-
-
-
-
 // admin dashboard stats
 app.get("/admin/stats", async (req, res) => {
   try {
@@ -692,7 +677,7 @@ app.get("/admin/stats", async (req, res) => {
     const users = await UserModel.find().sort({ createdAt: 1 });
     const products = await ProductModel.find();
 
-    console.log("Products:", products.length);
+    //console.log("Products:", products.length);
 
     let salesByDate = {};
     let usersByDate = {};
@@ -784,7 +769,6 @@ app.get("/admin/stats", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 
 
