@@ -12,20 +12,20 @@ function ManageOrder() {
   }, []);
 
   const fetchOrders = () => {
-    axios.get("http://localhost:3001/orders")
+    axios.get(`${import.meta.env.VITE_API_URL}/orders`)
       .then(res => setOrders(res.data))
       .catch(err => console.log(err));
   };
 
   const updateStatus = (id, status) => {
-    axios.put(`http://localhost:3001/orders/${id}`, { status })
+    axios.put(`${import.meta.env.VITE_API_URL}/orders/${id}`, { status })
       .then(() => {
         fetchOrders();
       });
   };
 
   const deleteOrder = (id) => {
-    axios.delete(`http://localhost:3001/orders/${id}`)
+    axios.delete(`${import.meta.env.VITE_API_URL}/orders/${id}`)
       .then(() => {
         fetchOrders();
       });

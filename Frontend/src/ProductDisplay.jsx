@@ -20,7 +20,7 @@ function ProductDisplay() {
 
   useEffect(() => {
     axios
-      .get(`https://my-react-app-backend-4517.onrender.com/products/${id}`)
+      .get(`${import.meta.env.VITE_API_URL}/products/${id}`)
       .then((res) => setProduct(res.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -46,7 +46,7 @@ function ProductDisplay() {
   }
 
   try {
-    await fetch("https://my-react-app-backend-4517.onrender.com/cart", {
+    await fetch(`${import.meta.env.VITE_API_URL}/cart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

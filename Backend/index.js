@@ -20,12 +20,11 @@ const sendOrderEmail = async (order, invoicePath) => {
   const msg = {
     to: order.email,
     from: "gayathrikulal558@gmail.com",
-    subject: "Order Placed Successfully",
+    subject: "From HRX - Order Placed Successfully",
     html: `
       <h2>Order Confirmed</h2>
       <p>Hello ${order.userName},</p>
       <p>Your order has been placed successfully.</p>
-
       <p><strong>Order ID:</strong> ${order._id}</p>
       <p><strong>Total Amount:</strong> ₹${order.totalPrice}</p>
       <p><strong>Payment:</strong> ${order.paymentMethod}</p>
@@ -203,7 +202,6 @@ app.put('/products/:id', upload.single("image"), async (req, res) => {
 
 
 
-
 app.get("/products/category/:category", async (req, res) => {
   try {
     const category = req.params.category;
@@ -325,6 +323,7 @@ app.post("/orders", async (req, res) => {
       items: items,
       totalPrice: total
     });
+    
 
     //  CLEAR CART FIRST
     if (req.body.isFromCart) 

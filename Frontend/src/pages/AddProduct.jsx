@@ -25,7 +25,7 @@ function AddProduct() {
     formData.append("rating", rating);
     formData.append("gst", gst);
 
-    axios.post("https://my-react-app-backend-4517.onrender.com/products", formData)
+    axios.post(`${import.meta.env.VITE_API_URL}/products`, formData)
       .then((res) => {
         alert("Product Added Successfully");
 

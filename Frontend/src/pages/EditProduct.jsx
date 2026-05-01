@@ -20,7 +20,7 @@ function EditProduct() {
 
     useEffect(()=>{
 
-        axios.get(`http://localhost:3001/products/${id}`)
+        axios.get(`${import.meta.env.VITE_API_URL}/products/${id}`)
         .then(res=>{
             setProduct(res.data);
         })
@@ -45,7 +45,7 @@ function EditProduct() {
             formData.append("image",product.imageUpload);
         }
 
-        await axios.put(`http://localhost:3001/products/${id}`,formData,{
+        await axios.put(`${import.meta.env.VITE_API_URL}/products/${id}`,formData,{
             headers:{"Content-Type":"multipart/form-data"}
         });
 

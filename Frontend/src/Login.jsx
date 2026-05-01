@@ -13,7 +13,7 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios.post("https://my-react-app-backend-4517.onrender.com/login", {
+    axios.post(`${import.meta.env.VITE_API_URL}/login`, {
   email,
   password,
 })

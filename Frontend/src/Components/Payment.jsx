@@ -13,6 +13,7 @@ function Payment() {
 
   const formData = location.state?.form || savedData?.form;
   const cartItems = location.state?.cartItems || savedData?.cartItems;
+  
   const product = location.state?.product || savedData?.product;
 
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -98,7 +99,7 @@ function Payment() {
         }
 
         const res = await axios.post(
-          "https://my-react-app-backend-4517.onrender.com/orders",
+          `${import.meta.env.VITE_API_URL}/orders`,
           {
             userId: user?._id,
             address: fullAddress,
@@ -131,7 +132,7 @@ function Payment() {
 
     try {
       const response = await axios.post(
-        "https://my-react-app-backend-4517.onrender.com/create-order",
+        `${import.meta.env.VITE_API_URL}/create-order`,
         { amount: totalPrice }
       );
 
@@ -172,7 +173,7 @@ function Payment() {
 
           try {
             const res = await axios.post(
-              "https://my-react-app-backend-4517.onrender.com/verify-payment",
+              `${import.meta.env.VITE_API_URL}/verify-payment`,
               data
             );
 

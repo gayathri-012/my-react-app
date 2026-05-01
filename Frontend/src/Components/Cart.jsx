@@ -15,7 +15,7 @@ function Cart() {
       const user = JSON.parse(localStorage.getItem("user"));
 
       const res = await fetch(
-        `https://my-react-app-backend-4517.onrender.com/cart/${user._id}`
+        `${import.meta.env.VITE_API_URL}/cart/${user._id}`
       );
 
       const data = await res.json();
@@ -26,7 +26,7 @@ function Cart() {
   };
 
   const increaseQty = async (id, quantity) => {
-    await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/cart/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ function Cart() {
 
   const decreaseQty = async (id, quantity) => {
     if (quantity > 1) {
-      await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/cart/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +50,7 @@ function Cart() {
   };
 
   const deleteProduct = async (id) => {
-    await fetch(`https://my-react-app-backend-4517.onrender.com/cart/${id}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/cart/${id}`, {
       method: "DELETE",
     });
     fetchCart();

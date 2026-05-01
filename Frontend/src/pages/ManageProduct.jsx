@@ -14,7 +14,7 @@ function ManageProduct(){
         if(!window.confirm("Are you sure you want to delete this product?")) return;
 
         try {
-            await axios.delete(`http://localhost:3001/products/${id}`);
+            await axios.delete(`${import.meta.env.VITE_API_URL}/products/${id}`);
             alert("Product deleted successfully");
             setProducts(products.filter(product => product._id !== id));
         } 
@@ -24,7 +24,7 @@ function ManageProduct(){
     };
 
     useEffect(() => {
-        axios.get('http://localhost:3001/products')
+        axios.get(`${import.meta.env.VITE_API_URL}/products`)
             .then(response => {
                 setProducts(response.data);
             })
@@ -34,7 +34,6 @@ function ManageProduct(){
     }, []);
 
    
-
     return(
         <div className="manage-container">
             <br></br><br></br><br></br>

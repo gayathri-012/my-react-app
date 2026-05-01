@@ -35,7 +35,7 @@ function Dashboard() {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    axios.get("https://my-react-app-backend-4517.onrender.com/admin/stats")
+    axios.get(`${import.meta.env.VITE_API_URL}/admin/stats`)
       .then(res => setStats(res.data))
       .catch(err => console.log(err));
   }, []);
