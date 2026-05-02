@@ -119,9 +119,22 @@ function Cart() {
         Back to Products
       </button>
 
-      <button
+      {/* <button
         onClick={() => navigate("/checkout", { state: cartData })}
-        className="checkout-btn"
+        className="checkout-btns"
+      >
+        Proceed to Checkout
+      </button> */}
+      <button
+        onClick={() =>
+          navigate("/checkout", {
+            state: {
+              items: cartData,
+              isFromCart: true,
+            },
+          })
+        }
+        className="checkout-btns"
       >
         Proceed to Checkout
       </button>

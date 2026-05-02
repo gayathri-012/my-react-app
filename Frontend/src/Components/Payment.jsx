@@ -13,6 +13,9 @@ function Payment() {
 
   const formData = location.state?.form || savedData?.form;
   const cartItems = location.state?.cartItems || savedData?.cartItems;
+
+
+  const isFromCart = location.state?.isFromCart || false;
   
   const product = location.state?.product || savedData?.product;
 
@@ -105,7 +108,7 @@ function Payment() {
             address: fullAddress,
             paymentMethod: "COD",
             items: itemsData,
-            isFromCart: !!cartItems
+            isFromCart: isFromCart
           }
         );
 
@@ -168,7 +171,7 @@ function Payment() {
             userId: user._id,
             userName: user.name || user.firstname,
             address: fullAddress,
-            isFromCart: !!cartItems
+           isFromCart: isFromCart
           };
 
           try {

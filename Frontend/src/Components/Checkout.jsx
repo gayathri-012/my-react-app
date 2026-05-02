@@ -6,21 +6,25 @@ function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  let cartItems = [];
+  // let cartItems = [];
 
-  if (location.state) {
-    if (Array.isArray(location.state)) {
-      cartItems = location.state; 
-    } else {
+  // if (location.state) {
+  //   if (Array.isArray(location.state)) {
+  //     cartItems = location.state; 
+  //   } else {
       
-      cartItems = [
-        {
-          productId: location.state,
-          quantity: location.state.quantity || 1,
-        },
-      ];
-    }
-  }
+  //     cartItems = [
+  //       {
+  //         productId: location.state,
+  //         quantity: location.state.quantity || 1,
+  //       },
+  //     ];
+  //   }
+  // }
+
+
+  const cartItems = location.state?.items || [];
+const isFromCart = location.state?.isFromCart || false;
 
   const [form, setForm] = useState({
     name: "",
@@ -76,7 +80,7 @@ function Checkout() {
     }
 
     navigate("/payment", {
-      state: { form, cartItems },
+      state: { form, cartItems, isFromCart },
     });
   };
 

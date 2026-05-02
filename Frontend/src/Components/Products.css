@@ -1,4 +1,4 @@
-/* .products-header {
+ .products-header {
   position: relative;
   margin-top: 80px;
   padding: 20px;
@@ -106,9 +106,16 @@
 
 .back-btn:hover {
   background: #e63939;
-} */
+} 
 
 
+
+
+
+
+
+
+/* 
 .payment-container {
   padding: 20px;
   background: #000;
@@ -135,7 +142,7 @@
   border-radius: 10px;
 }
 
-/* ITEM */
+
 .item {
   display: flex;
   align-items: center;
@@ -157,7 +164,7 @@
   flex: 1;
 }
 
-/* ADDRESS */
+
 .address {
   background: #1a1a1a;
   padding: 10px;
@@ -165,7 +172,7 @@
   margin-bottom: 15px;
 }
 
-/* PAYMENT METHOD */
+
 .method {
   padding: 10px;
   margin: 10px 0;
@@ -183,7 +190,7 @@
   border: 2px solid red;
 }
 
-/* BUTTON */
+
 .pay-btn {
   width: 100%;
   padding: 12px;
@@ -198,4 +205,4 @@
 
 .pay-btn:hover {
   background: #cc0000;
-}
+} */

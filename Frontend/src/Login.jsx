@@ -34,10 +34,10 @@ function Login() {
     localStorage.setItem("user", JSON.stringify(userData));
 
     if (userData.isAdmin) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
        
     } else {
-      navigate("/");
+      navigate("/", { replace: true });
        
     }
 
@@ -93,7 +93,12 @@ function Login() {
 
       
         <div className="card-right">
-          <span className="close">X</span>
+          <span 
+        className="close" 
+        onClick={() => navigate("/")}   
+      >
+        X
+      </span>
           <img src="/model.png" alt="Fitness Model" />
         </div>
 
