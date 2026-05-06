@@ -45,8 +45,8 @@ function Community() {
         
         <div className="content-right">
           <div className="image-box">
-            <img src="/com1.png" alt="Run 1" />
-            <img src="/com2.png" alt="Run 2" />
+            <img src="/community1.png" alt="Run 1" />
+            <img src="/community2.png" alt="Run 2" />
           </div>
         </div>
 
