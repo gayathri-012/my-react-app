@@ -65,6 +65,7 @@ function ProductView() {
                 <img
                   src={product.imageUpload}
                   alt={product.title}
+                  className="product-images"
                 />
 
                 <h3>{product.title}</h3>

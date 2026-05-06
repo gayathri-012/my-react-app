@@ -73,15 +73,15 @@
 }
 
 .status.Pending {
+  color: red;
+}
+
+.status.Shipped {
   color: orange;
 }
 
-.status.Completed {
-  color: lightgreen;
-}
-
-.status.Cancelled {
-  color: red;
+.status.Delivered {
+  color: green;
 }
 
 

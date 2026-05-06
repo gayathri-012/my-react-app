@@ -28,9 +28,10 @@ const sendOrderEmail = async (order, invoicePath) => {
       <p><strong>Order ID:</strong> ${order._id}</p>
       <p><strong>Total Amount:</strong> ₹${order.totalPrice}</p>
       <p><strong>Payment:</strong> ${order.paymentMethod}</p>
-
       <br/>
       <p>Thank you for shopping with us </p>
+      <p>Best Regards,<br/>HRX Team</p>
+      <p>Customer Support: support@hrx.com</p>
     `,
     attachments: [
       {
@@ -173,7 +174,6 @@ app.get('/products/:id', async (req, res) => {
     res.json(err);
   }
 });
-
 
 app.put('/products/:id', upload.single("image"), async (req, res) => {
   try {
@@ -422,18 +422,23 @@ app.put("/orders/:id", async (req, res) => {
         <p>Your order has been shipped.</p>
         <p><strong>Order ID:</strong> ${updated._id}</p>
         <p><strong>Total Price:</strong> ₹${updated.totalPrice}</p>
-        <p>Thank you for shopping with us!</p>
+        <p>Thank you for shopping with HrX!</p>
+        <p>Best Regards,<br/>HRX Team</p>
+        <p>Customer Support: support@hrx.com</p>
+
       `;
     }
 
     if (req.body.status === "Delivered") {
       subject = "From HRX- Your Order has been Delivered";
       message = `
-        <h2>Order Delivered</h2>
+        <h2>Your Order Delivered</h2>
         <p>Hello ${updated.userName},</p>
         <p>Your order has been delivered.</p>
         <p><strong>Order ID:</strong> ${updated._id}</p>
-        <p>Thank you for shopping with us!</p>
+        <p>Thank you for shopping with HrX!</p>
+        <p>Best Regards,<br/>HRX Team</p>
+        <p>Customer Support: support@hrx.com</p>
 
       `;
     }
@@ -734,7 +739,7 @@ app.get("/admin/stats", async (req, res) => {
       return result;
     };
 
-    const startDate = new Date("2026-04-01");
+    const startDate = new Date("2026-04-20");
 
     salesByDate = fillDates(salesByDate, startDate);
     usersByDate = fillDates(usersByDate, startDate);

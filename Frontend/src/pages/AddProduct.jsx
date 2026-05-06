@@ -84,6 +84,7 @@ function AddProduct() {
         <label>Price</label>
         <input
           type="number"
+          placeholder="Enter price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           required
@@ -92,6 +93,7 @@ function AddProduct() {
         <label>Quantity</label>
         <input
           type="number"
+          placeholder="Enter quantity"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           required
@@ -100,22 +102,21 @@ function AddProduct() {
         <label>Rating</label>
         <input
           type="number"
+          placeholder="Enter rating(1-10)"
           value={rating}
           onChange={(e) => setRating(e.target.value)}
           required
         />
 
-        <div style={{ marginBottom: "10px" }}>
-          <label>GST</label><br />
+          <label>GST</label>
           <input
-            style={{ marginBottom: "10px", width: "80%" }}
             type="number"
             placeholder="Enter GST"
             value={gst}
             onChange={(e) => setGst(e.target.value)}
             required
           />
-        </div>
+    
 
         <button type="submit">Add Product</button>
         <br />
