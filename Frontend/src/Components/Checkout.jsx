@@ -5,26 +5,8 @@ import "./Checkout.css";
 function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // let cartItems = [];
-
-  // if (location.state) {
-  //   if (Array.isArray(location.state)) {
-  //     cartItems = location.state; 
-  //   } else {
-      
-  //     cartItems = [
-  //       {
-  //         productId: location.state,
-  //         quantity: location.state.quantity || 1,
-  //       },
-  //     ];
-  //   }
-  // }
-
-
   const cartItems = location.state?.items || [];
-const isFromCart = location.state?.isFromCart || false;
+  const isFromCart = location.state?.isFromCart || false;
 
   const [form, setForm] = useState({
     name: "",
@@ -39,12 +21,12 @@ const isFromCart = location.state?.isFromCart || false;
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  
+
   if (!cartItems || cartItems.length === 0) {
     return <h2 style={{ color: "white" }}>No items found</h2>;
   }
 
- 
+
   let subtotal = 0;
   let totalGST = 0;
 
@@ -64,7 +46,7 @@ const isFromCart = location.state?.isFromCart || false;
 
   const totalPrice = (subtotal + totalGST).toFixed(2);
 
- 
+
   const continueToPayment = () => {
     if (!form.name || !form.phone || !form.address) {
       alert("Fill all details");
@@ -90,7 +72,7 @@ const isFromCart = location.state?.isFromCart || false;
 
       <div className="checkout-box">
 
-       
+
         <div className="checkout-left">
           <h2>Order Summary</h2>
 
@@ -133,7 +115,7 @@ const isFromCart = location.state?.isFromCart || false;
           </div>
         </div>
 
-        
+
         <div className="checkout-right">
           <h3>Delivery Details</h3>
 

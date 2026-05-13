@@ -103,13 +103,45 @@ app.post('/login', (req, res) => {
     });
 });
 
+app.post('/register', async (req, res) => {
+
+  try {
+
+    const { firstname, lastname, email, password } = req.body;
+    const existingUser = await UserModel.findOne({ email });
+
+    if (existingUser) {
+      return res.json({
+        status: "error",
+        message: "Email already registered"
+      });
+    }
+    const newUser = await UserModel.create({
+      firstname,
+      lastname,
+      email,
+      password
+    });
+
+    res.json({
+      status: "success",
+      user: newUser
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      status: "error",
+      message: "Server error"
+    });
+
+  }
+
+});
 
 
-app.post('/register', (req, res) => {
-  UserModel.create(req.body)
-    .then(users => res.json(users))
-    .catch(err => res.json(err))
-})
 
 //adding product
 app.post('/products', upload.single("image"), (req, res) => {

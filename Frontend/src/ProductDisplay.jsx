@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ProductDisplay.css";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 function ProductDisplay() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -36,34 +36,34 @@ function ProductDisplay() {
   };
 
   const addProduct = async () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  
-  if (!user) {
-    alert("Please login first"); 
-    navigate("/login");           
-    return;
-  }
 
-  try {
-    await fetch(`${import.meta.env.VITE_API_URL}/cart`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId: product._id,
-        quantity: count,
-        userId: user._id
-      }),
-    });
+    if (!user) {
+      alert("Please login first");
+      navigate("/login");
+      return;
+    }
 
-    alert("Added to cart");
-    navigate("/cart");
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product._id,
+          quantity: count,
+          userId: user._id
+        }),
+      });
+
+      alert("Added to cart");
+      navigate("/cart");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="product-page">
@@ -92,67 +92,36 @@ function ProductDisplay() {
             <button className="add" onClick={addProduct}>
               Add to Cart
             </button>
-           
 
 
-           {/* <button
-  className="buy"
-  onClick={() => {
-    const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!user) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
 
-    localStorage.setItem(
-      "checkoutData",
-      JSON.stringify({
-        product: {
-          ...product,
-          quantity: count,
-        },
-      })
-    );
+            <button
+              className="buy"
+              onClick={() => {
+                const user = JSON.parse(localStorage.getItem("user"));
 
-   
-    navigate("/checkout", {
-      state: {
-        ...product,
-        quantity: count,
-      },
-    });
-  }}
->
-  Buy Now
-</button> */}
-<button
-  className="buy"
-  onClick={() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+                if (!user) {
+                  alert("Please login first");
+                  navigate("/login");
+                  return;
+                }
 
-    if (!user) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
+                const item = {
+                  productId: product,
+                  quantity: count,
+                };
 
-    const item = {
-      productId: product,
-      quantity: count,
-    };
-
-    navigate("/checkout", {
-      state: {
-        items: [item],
-        isFromCart: false,
-      },
-    });
-  }}
->
-  Buy Now
-</button>
+                navigate("/checkout", {
+                  state: {
+                    items: [item],
+                    isFromCart: false,
+                  },
+                });
+              }}
+            >
+              Buy Now
+            </button>
 
           </div>
         </div>

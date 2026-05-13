@@ -42,15 +42,6 @@ body {
     margin-bottom: 10px;
 }
 
-.register {
-    margin-bottom: 30px;
-}
-
-.register span {
-    color: red;
-    cursor: pointer;
-}
-
 .card-left input {
     width: 100%;
     padding: 14px;
@@ -58,13 +49,6 @@ body {
     background: black;
     border: 1px solid #888;
     color: white;
-}
-
-.forgot {
-    text-align: right;
-    color: red;
-    margin-bottom: 25px;
-    cursor: pointer;
 }
 
 .login-btn {
@@ -97,4 +81,16 @@ body {
     cursor: pointer;
 }
 
+.register-link {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
 
+.register-link a {
+  color:blue;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}

@@ -42,7 +42,7 @@ function Login() {
     }
 
   } else {
-    alert("Login failed");
+    alert("Login failed(check your credentials)");
   }
 })
 .catch((err) => {
@@ -63,7 +63,7 @@ function Login() {
 
           <h2>India’s biggest fitness community</h2>
 
-          <p className="register">
+          <p className="register-link">
             New to our Community?{" "}
             <Link to="/register">Click Here to Register</Link>
           </p>

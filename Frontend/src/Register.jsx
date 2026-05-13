@@ -32,11 +32,27 @@ function Register() {
         email,
         password,
       })
+
 .then((result) => {
-  console.log(result);
-  navigate("/login"); 
+
+  if (result.data.status === "success") {
+
+    alert("Registration Successful");
+    navigate("/login");
+
+  } else {
+
+    alert(result.data.message);
+
+  }
+
 })
-.catch(err => console.log(err));
+.catch((err) => {
+
+  console.log(err);
+  alert("Server Error");
+
+});
 
   };
 
@@ -53,7 +69,7 @@ function Register() {
             Get access to the Fitness Hub, Special Discounts and Freebies.
           </p>
           <p className="signin-link">
-            Already in our Community? <Link to="/login">Sign-in</Link>
+            Already in our Community? <Link to="/login">Click Here to Log-In</Link>
           </p>
 
           <form onSubmit={handleSubmit}>
